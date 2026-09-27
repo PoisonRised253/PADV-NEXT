@@ -1,0 +1,9 @@
+_build
+_maps
+bin
+docs
+k_stdlib
+actors.xml
+build.bat
+build.ninja
+Mod_Assets
