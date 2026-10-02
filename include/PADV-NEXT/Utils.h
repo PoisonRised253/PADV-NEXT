@@ -23,8 +23,11 @@ ext u32 NoJumping(u32);
 ext void DisableItem(u32, u32);
 ext void SetUpper(u32*, u16);
 ext void SetLower(u32*, u16);
-ext void WrapNumber(u32&, u32, u32);
+ext u32 WrapNumber(u32 value, u32 min, u32 max);
 ext void HandleHotkeys();
+ext bool SetActorCollisionLayer(dActor_c*, char);
+ext void SetActorCollisionLayer_internal(dActor_c* actor, char layer);
+ext void SetPlayerBecomeJesus(register dAcPy_c* actor, register bool state);
 ext static const u32 CreateLoadImmediate(u8, u16);
 ext void AntiBubble();
 

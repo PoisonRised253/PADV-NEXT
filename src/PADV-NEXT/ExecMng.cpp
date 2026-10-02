@@ -4,40 +4,44 @@ int FrameTimer = 0;
 ExecPhase currentPhase;
 bool isInitialized = false;
 bool isInStage = false;
+bool EnteredStage = false;
 dEn_c* smitePlayer = NULL;
 
 dAcPy_c* Players[4] = {NULL};
 dGameKeyCore_c* Inputs[4] = {NULL};
-dBlower_c* Blowers[8] = {NULL};
+dBlower_c* Blowers[dBlower_c::MaxInstances] = {NULL};
 const Modifier Mods[MODS_SIZE] = {
-    Modifier(41, 1, 0, POST, (void (*)(void *))NahFuckThat, 0, (void *)true, true),
-    Modifier(1, 1, 0, POST, (void (*)(void *))Lonely, TIMER_CLEAR, (void *)NULL, false),
-    Modifier(2, 1, 0, ALL, (void (*)(void *))SpinEternally, 0, (void *)NULL, false),
-    Modifier(3, 1, 0, PRE, (void (*)(void *))MiniPlusPlus, 0, (void *)NULL, false),
-    Modifier(22, 1, 0, POST, (void (*)(void *))TowerFunc, 0, (void *)NULL, false),
-    Modifier(4, 1, 0, POST, (void (*)(void *))MarioCantBreatheUnderwater, 0, (void *)NULL, false),
-    Modifier(5, 1, 0, PRE, (void (*)(void *))SuperCold, 0, (void *)NULL, false),
-    Modifier(6, 1, 0, PRE, (void (*)(void *))ShyRollers, 15, (void *)NULL, false),
-    Modifier(24, 1, 0, POST, (void (*)(void *))TrustYourSenses, 0, (void *)NULL, false),
-
-    Modifier(1, 2, 0, POST, (void (*)(void *))NoTakeBacks, 0, (void *)NULL, false),
-    Modifier(2, 2, 0, POST, (void (*)(void *))Inverter, 0, (void *)NULL, false),
-    Modifier(3, 2, 0, PRE, (void (*)(void *))LiterallyBulletHell, 0, (void *)NULL, false),
-    Modifier(22, 2, 0, PRE, (void (*)(void *))WeGoWee, 0, (void *)NULL, false), 
-    Modifier(4, 2, 0, POST, (void (*)(void *))SandyPain, 0, (void *)NULL, false),
-    Modifier(5, 2, 0, POST, (void (*)(void *))PokeyLanParty, 0, (void *)NULL, false),
-    Modifier(6, 2, 0, PRE, (void (*)(void *))FuckTwoSix, 0, (void *)NULL, false),
-    Modifier(24, 2, 0, PRE, (void (*)(void *))FixRoys, 0, (void *)NULL, false), //Fixes Roy's endless loop by avoiding L:24,W:2,A:0
-    Modifier(24, 2, 0, POST, (void (*)(void *))CastleBlowers, 6, (void *)(bool)dInfo_c::m_instance->m_startGameInfo.mArea, true), //Actual OverlayObject implementation, uses L:24 as a fake escape from Roy's A:0, also to seperate exec
-
-    Modifier(1, 3, 0, PRE, (void (*)(void *))MarioSlide, 0, (void *)NULL, false),
-    Modifier(2, 3, 0, PRE, (void (*)(void *))RealisticBullet, 0, (void *)NULL, false),
-    Modifier(3, 3, 0, PRE, (void (*)(void *))Icey, 0, (void *)NULL, false),
-    Modifier(21, 3, 0, POST, (void (*)(void *))BetterGhosts, 0, (void *)NULL, false),
-    Modifier(22, 3, 0, PRE, (void (*)(void *))FloatyTower, 0, (void *)NULL, false),
-    Modifier(4, 3, 0, PRE, (void (*)(void *))SlideyBlocks, 0, (void *)NULL, false),
-    Modifier(5, 3, 0, PRE, (void (*)(void *))WierdLineBlock, 0, (void *)NULL, false),
-    Modifier(24, 3, 0, PRE, (void (*)(void *))SnakeBlockFuckery, 0, (void *)NULL, false)
+    //W1
+    Modifier(41, 1, 0, POST, (void (*)(void *))NahFuckThat, 0, (void *)true, true, true),
+    Modifier(1, 1, 0, POST, (void (*)(void *))Lonely, TIMER_CLEAR, (void *)NULL, false, false),
+    Modifier(2, 1, 0, ALL, (void (*)(void *))SpinEternally, 0, (void *)NULL, false, false),
+    Modifier(3, 1, 0, PRE, (void (*)(void *))MiniPlusPlus, 0, (void *)NULL, false, false),
+    Modifier(22, 1, 0, POST, (void (*)(void *))TowerFunc, 0, (void *)NULL, false, true),
+    Modifier(4, 1, 0, POST, (void (*)(void *))MarioCantBreatheUnderwater, 0, (void *)NULL, false, false),
+    Modifier(5, 1, 0, PRE, (void (*)(void *))SuperCold, 0, (void *)NULL, false, false),
+    Modifier(6, 1, 0, POST, (void (*)(void *))ShyRollers, 30, (void *)NULL, false, false),
+    Modifier(24, 1, 0, POST, (void (*)(void *))TrustYourSenses, 0, (void *)NULL, false, true),
+    //W2
+    Modifier(1, 2, 0, POST, (void (*)(void *))NoTakeBacks, 0, (void *)NULL, false, false),
+    Modifier(2, 2, 0, POST, (void (*)(void *))Inverter, 0, (void *)NULL, false, false),
+    Modifier(3, 2, 0, PRE, (void (*)(void *))LiterallyBulletHell, 0, (void *)NULL, false, false),
+    Modifier(22, 2, 0, PRE, (void (*)(void *))WeGoWee, 0, (void *)NULL, false, false), 
+    Modifier(4, 2, 0, POST, (void (*)(void *))SandyPain, 0, (void *)NULL, false, false),
+    Modifier(5, 2, 0, POST, (void (*)(void *))PokeyLanParty, 0, (void *)NULL, false, false),
+    Modifier(6, 2, 0, PRE, (void (*)(void *))FuckTwoSix, 0, (void *)NULL, false, true),
+    Modifier(24, 2, 0, PRE, (void (*)(void *))FixRoys, 0, (void *)NULL, false, false), //Fixes Roy's endless loop by avoiding L:24,W:2,A:0
+    Modifier(24, 2, 0, POST, (void (*)(void *))CastleBlowers, 6, (void *)(bool)dInfo_c::m_instance->m_startGameInfo.mArea, true, false), //Actual OverlayObject implementation, uses L:24 as a fake escape from Roy's A:0, also to seperate exec
+    //W3
+    Modifier(1, 3, 0, PRE, (void (*)(void *))MarioSlide, 0, (void *)NULL, false, false),
+    Modifier(2, 3, 0, PRE, (void (*)(void *))RealisticBullet, 0, (void *)NULL, false, true),
+    Modifier(3, 3, 0, PRE, (void (*)(void *))Icey, 0, (void *)NULL, false, true),
+    Modifier(21, 3, 0, POST, (void (*)(void *))BetterGhosts, 0, (void *)NULL, false, true),
+    Modifier(22, 3, 0, PRE, (void (*)(void *))FloatyTower, 0, (void *)NULL, false, false),
+    Modifier(4, 3, 0, PRE, (void (*)(void *))SlideyBlocks, 0, (void *)NULL, false, false),
+    Modifier(5, 3, 0, PRE, (void (*)(void *))WierdLineBlock, 15, (void *)NULL, false, false),
+    Modifier(24, 3, 0, PRE, (void (*)(void *))SnakeBlockFuckery, 0, (void *)NULL, false, true),
+    //W4
+    Modifier(1,4,0, PRE, (void (*)(void *))WaterStrangeness, 15, (void*)NULL, false, false)
 };
 
 void ExecMng::Initialize() {
@@ -59,39 +63,32 @@ void ExecMng::Reset(bool full) {
         if(wmSwitchBroken) {wmSwitchBroken->deleteRequest(); OSReport("Killed the Switch, hehe Killswitch\n");}
     }
     if(full) {
-        for(int i = 0; i < dBlower_c::Capacity; i++) 
-            {if(Blowers[i]) Blowers[i]->mDelayedDelete = true;} LivePatch(0x38600086, &LP_PARABOMBSPAWNID);
+        for(int i = 0; i < dBlower_c::MaxInstances; i++) 
+            {if(Blowers[i]) Blowers[i]->mDelayedDelete = true;}
+        LivePatch(0x38600086, &LP_PARABOMBSPAWNID);
         *daBoo_c::getGlobalScaler() = 1.f;
         Spawners::daIcicle_c::SetGlobalScale(1);
+        EnteredStage = false;
     }
 
-    dInfo_c *info = dInfo_c::getInstance();
-    if(info) {
-        info->clsStockItem(0);
-        info->clsStockItem(1);
-        info->clsStockItem(2);
-        info->clsStockItem(3);
-        info->clsStockItem(4);
-        info->clsStockItem(5);
-        info->clsStockItem(6);
+    dMj2dGame_c* header = dSaveMng_c::m_instance->getSaveGame(dSaveMng_c::m_instance->getLastSelectedFile());
+    if(header && full) {
+        header->setStockItem(0, 99);
+        header->setStockItem(1, 99);
+        header->setStockItem(2, 99);
+        header->setStockItem(3, 99);
+        header->setStockItem(4, 99);
+        header->setStockItem(5, 99);
+        header->setStockItem(6, 99);
 
-        for (int i = 0; i < 100; i++)
-        {
-            info->addStockItem(0);
-            info->addStockItem(1);
-            info->addStockItem(2);
-            info->addStockItem(3);
-            info->addStockItem(4);
-            info->addStockItem(5);
-            info->addStockItem(6);
-        }
-        
-        daPyMng_c::mRest[0] = 0x64;
-        daPyMng_c::mRest[1] = 0x64;
-        daPyMng_c::mRest[2] = 0x64;
-        daPyMng_c::mRest[3] = 0x64;
+        daPyMng_c::mRest[0] = LIVES_AMOUNT;
+        daPyMng_c::mRest[1] = LIVES_AMOUNT;
+        daPyMng_c::mRest[2] = LIVES_AMOUNT;
+        daPyMng_c::mRest[3] = LIVES_AMOUNT;
     }
+    #ifdef PADV_DEBUG_EXEC
     OSReport("Passed on phase %i\n", full);
+    #endif
     return;
 }
 
@@ -126,13 +123,9 @@ void ExecMng::Execute(ExecPhase phase) {
         //OSReport("Running Mods %i\n", i);
         Mods[i].TryRun(phase);
     }
-
-    for(int i = 0; i < dBlower_c::Capacity; i++) {
+    for(int i = 0; i < dBlower_c::MaxInstances; i++) {
         if(Blowers[i] && Blowers[i]->Verify()) Blowers[i]->Execute();
     }
-
-    Spawners::daIceAshibaSpawner_c* spawnah = (Spawners::daIceAshibaSpawner_c*)GetNextOfType(Spawners::daIceAshibaSpawner_c::actorID, NULL);
-    if(spawnah) OSReport("Spawnah at %p\n", spawnah);
 
 #ifdef DEBUG_EXEC_EXTREME
     OSReport("Frame: %i\n", FrameTimer);

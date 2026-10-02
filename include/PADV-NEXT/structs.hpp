@@ -3,7 +3,10 @@
 #include "PADV-NEXT/defines.h"
 #include "PADV-NEXT/Utils.h"
 
+extern "C" bool isPause();
+
 enum ExecPhase  { NONE = 0, PRE = 1, POST = 2, ALL = 3 };
+enum ActorLayer { NORMAL = 0, FOREGROUND = 1, BACKGROUND = 2};
 
 // Level and World are 1-Indexed. Do not enter 0 unless it shouldnt ever work.
 struct Modifier {
@@ -18,7 +21,8 @@ struct Modifier {
     const ModFuncNoArg ModNoArg;
     int Timer; //0 for None
     void* arg;
-    bool useArg;
+    const bool useArg;
+    const bool shouldRunWhilePaused;
 
     void TryRun(ExecPhase phase) const {
         dScStage_c* stage = dScStage_c::getInstance();
@@ -28,6 +32,7 @@ struct Modifier {
         else if(Level != stage->mCurrCourse + 1 || World != stage->mCurrWorld + 1) return;
         if(Area != 0 && Area != stage->mCurrAreaNo + 1) return;
         special:
+        if(!shouldRunWhilePaused && isPause()) return;
         if(Timer == 0) {
             if(!useArg) { this->ModNoArg(); }
             else { this->Mod(arg); }
@@ -37,11 +42,10 @@ struct Modifier {
         }
     }
 
-    Modifier(u8 level, u8 world, u8 area, ExecPhase phase, void (func)(void *), int timer, void *argument, bool UseArg) : Level(level), World(world), Area(area), Phase(phase), Mod((ModFunc)func), ModNoArg((ModFuncNoArg)func)
+    Modifier(u8 level, u8 world, u8 area, ExecPhase phase, void (func)(void *), int timer, void *argument, bool UseArg, bool runWhilePause) : Level(level), World(world), Area(area), Phase(phase), Mod((ModFunc)func), ModNoArg((ModFuncNoArg)func), useArg(UseArg), shouldRunWhilePaused(runWhilePause)
     {
         Timer = timer;
         arg = argument;
-        useArg = UseArg;
     }
 };
 

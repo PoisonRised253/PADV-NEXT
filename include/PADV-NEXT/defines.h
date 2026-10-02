@@ -5,16 +5,16 @@
 #endif
 
 #define ext extern "C"
-#define MODS_SIZE 26 //Mods Array Size
+#define MODS_SIZE 27 //Mods Array Size
 
 #define INSTR_BLR 0x4e800020
 #define INSTR_NOP 0x60000000
 
 //Defaults
 #define DEFAULT_SPEED_RIGHT 0x3f800000
-#define DEFAULT_SPEED_LEFT 0xbf800000
-#define DEFAULT_SPEED_JUMP 0x40683127
-#define STATEID_BALLOON 0x80376870
+#define DEFAULT_SPEED_LEFT  0xbf800000
+#define DEFAULT_SPEED_JUMP  0x40683127
+#define STATEID_BALLOON     0x80376870
 
 #define DEBUG_PADV
 #define DEBUG_PADV_ALL
@@ -47,6 +47,8 @@
 #include <game/bases/d_a_player_manager.hpp>
 #include <game/bases/d_enemy_manager.hpp>
 #include <game/bases/d_game_com.hpp>
+#include <game/bases/d_save_mng.hpp>
+#include <game/bases/d_mj2d_data.hpp>
 
 #include "PADV-NEXT/predefines.hpp"
 #include "PADV-NEXT/Utils.h"
@@ -57,21 +59,20 @@
 #include "PADV-NEXT/Modifiers.h"
 #include "PADV-NEXT/daEnemies_c.h"
 
-// Current amount of activatable modifiers
-#define MOD_SIZE 26
-
 extern int FrameTimer;
 extern ExecPhase currentPhase;
 extern bool isInitialized;
 extern bool isInStage;
+extern bool EnteredStage;
 extern int currentMoveMod;
 extern dEn_c* smitePlayer;
 extern const char* Signature;
 
 extern dAcPy_c* Players[4];
 extern dGameKeyCore_c* Inputs[4]; 
-extern const Modifier Mods[MOD_SIZE];
+extern const Modifier Mods[MODS_SIZE];
 
+//Const Storage, an attempt to make the compiler generate li since these dont have a RAM storage location
 
 // Infinite-Lives "True" Amount
 #define LIVES_AMOUNT 0x64
@@ -144,15 +145,16 @@ extern void *LP_AUTOHOLDDOWN; //==
 extern void *LP_FUKIDELETER; //==
 extern void *LP_EXITUNCLEARED_1; //==
 extern void *LP_EXITUNCLEARED_2; //==
-extern void *LP_PSSLOTLIMIT_1; //!=, PAL1=80abb680
-extern void *LP_PSSLOTLIMIT_2; //!=, PAL1=80abb720
+extern void *LP_PSSLOTLIMIT_1; //!=, PAL1=80abb680, Default: cmpwi rX, 8
+extern void *LP_PSSLOTLIMIT_2; //!=, PAL1=80abb720, Default: cmpwi rX, 8
 extern void *LP_PIPESPAWNID_1; //!=, PAL1=80abb6cc, Default: li r3, 51
 extern void *LP_PIPESPAWNID_2; //!=, PAL1=80abb76c, Default: li r3, 133
-extern void *LP_DEATHMUSHSETUP_1; //==
-extern void *LP_DEATHMUSHSETUP_2; //==
-extern void *LP_FALLPLATPATCH;    //!=, PAL1=80837a70
+extern void *LP_DEATHMUSHSETUP_1; //==, mtlr r29
+extern void *LP_DEATHMUSHSETUP_2; //==, mtlr r29
+extern void *LP_FALLPLATPATCH; //!=, PAL1=80837a70
 extern void *LP_PARABOMBSPAWNID; //Default: li r3, 134
 extern void *LP_CHEEPSPAWNID; //li r3, 389
+extern void *DAT_WATERLAYERZERO;
 
 //Data segment, for absolute SMCs
 #endif

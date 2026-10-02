@@ -289,7 +289,17 @@ ext void DumpPlayer(int which)
         OSReport("DumpPlayer: Player %i does not Exist\n", which);
         return;
     }
-    OSReport("\n--------------------------------------\n---Player %i Dump:---\n---Power: %p---\n---IsDemo: %i---\n---IsPause: %i---\n---IsGrounded: %i---\n---State: %p---\n---Level: %i---\n---World: %i---\n---Area: %i---\n--------------------------------------\n\n", which, *GetPlayerPowerState(Players[which]), *isDemo(Players[which]), isPause(), (bool)*checkGrounded(Players[which]), *checkAllowedMoves(Players[which]), dScStage_c::m_instance->mCurrCourse, dScStage_c::m_instance->mCurrWorld, dScStage_c::m_instance->mCurrAreaNo);
+    dBg_c *gm = dBg_c::m_bg_p;
+    u16 x = ((u16)Players[which]->mPos.x) & 0xFFF0;
+    u16 y = ((u16)(-Players[which]->mPos.y)) & 0xFFF0;
+    y -= 16;
+    u16 *NearestTiles[4] = {
+            gm->__GetUnitPointer(x - 16, y, 0, NULL, NULL),
+            gm->__GetUnitPointer(x + 16, y, 0, NULL, NULL),
+            gm->__GetUnitPointer(x, y - 16, 0, NULL, NULL),
+            gm->__GetUnitPointer(x, y + 16, 0, NULL, NULL)};
+
+    OSReport("\n--------------------------------------\n---Player %i Dump:---\n---Pointer: %p---\n---Power: %p---\n---IsDemo: %i---\n---IsPause: %i---\n---IsGrounded: %i---\n---State: %p---\n---Level: %i---\n---World: %i---\n---Area: %i---\n------NearestTiles:------\n---Up: %p---\n---Down: %p---\n---Left: %p---\n---Right: %p---\n--------------------------------------\n\n", which, Players[which], *GetPlayerPowerState(Players[which]), *isDemo(Players[which]), isPause(), (bool)*checkGrounded(Players[which]), *checkAllowedMoves(Players[which]), dScStage_c::m_instance->mCurrCourse, dScStage_c::m_instance->mCurrWorld, dScStage_c::m_instance->mCurrAreaNo, *NearestTiles[2], *NearestTiles[3], *NearestTiles[0], *NearestTiles[1]);
     return;
 }
 #endif
@@ -345,6 +355,23 @@ ext void HandleHotkeys()
     return;
 }
 
+ext bool SetActorCollisionLayer(dActor_c* actor, char layer) {
+    if(dBg_c::m_bg_p->CheckExistLayer(layer)) {SetActorCollisionLayer_internal(actor, layer); return true; }
+    return false;
+}
+
+ext void SetActorCollisionLayer_internal(dActor_c* actor, char layer) {
+    asm("addi r3, r3, 0x38F\n stb r4, 0(r3)");
+    return;
+}
+
+ext void SetPlayerBecomeJesus(register dAcPy_c* actor, register bool state) {
+    asm("cmpwi r4, 1\n beq enable");
+    asm("li r4, 0\nb commit");
+    asm("enable:\n li r4, 2");
+    asm("commit:\n stw r4, 0x102C(r3)\nblr");
+}
+
 /*ext dEn_c *GetNearestPlayer(mVec3_c relativeTo)
 {
     dEn_c *Winner = NULL;
@@ -366,13 +393,13 @@ ext void HandleHotkeys()
     return Winner;
 }*/
 
-ext void WrapNumber(u32& value, u32 min, u32 max)
+ext u32 WrapNumber(u32 value, u32 min, u32 max)
 {
     if (value >= max)
         value = min;
     else if (value <= min)
         value = max;
-    return;
+    return value;
 }
 
 ext static const u32 CreateLoadImmediate(u8 reg, u16 val) {

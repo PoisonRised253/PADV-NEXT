@@ -43,17 +43,17 @@ protected:
 public:
     static const Actors actorID = EN_TERESA;
 
-    u32 *getSearchEffectActive() const { return GetMemberFromOffset((void *)this, 0x8C8); } // Dont just randomly set this, it will crash
-    u32 *getAnimateShakeCooldown() const { return GetMemberFromOffset((void *)this, 0x9AC); }
-    u32 *getKnockedEffectInactive() const { return GetMemberFromOffset((void *)this, 0x9B0); }
-    u32 *getInvisible() const { return GetMemberFromOffset((void *)this, 0x9C8); }
-    u32 *getSpeed() const { return GetMemberFromOffset((void *)this, 0x9D4); }
+    inline u32 *getSearchEffectActive() const { return GetMemberFromOffset((void *)this, 0x8C8); } // Dont just randomly set this, it will crash
+    inline u32 *getAnimateShakeCooldown() const { return GetMemberFromOffset((void *)this, 0x9AC); }
+    inline u32 *getKnockedEffectInactive() const { return GetMemberFromOffset((void *)this, 0x9B0); }
+    inline u32 *getInvisible() const { return GetMemberFromOffset((void *)this, 0x9C8); }
+    inline u32 *getSpeed() const { return GetMemberFromOffset((void *)this, 0x9D4); }
 
-    float *getWaitStateChange() const { return (float *) GetMemberFromOffset((void *)this, 0x668); } // 40c00000 when Looked at, 42c00000 when looked away
-    float *getWaitBeforeSearch() const { return (float *) GetMemberFromOffset((void *)this, 0x6A0); }
+    inline float *getWaitStateChange() const { return (float *) GetMemberFromOffset((void *)this, 0x668); } // 40c00000 when Looked at, 42c00000 when looked away
+    inline float *getWaitBeforeSearch() const { return (float *) GetMemberFromOffset((void *)this, 0x6A0); }
     static float *getGlobalScaler() { return (float *)&DAT_BOOSCALER; } // This does also scale collision, strange isnt it, especially since it isnt instance-bound
 
-    void *getEffectChaseInstance() const { return GetMemberFromOffset((void *)this, 0x824); }
+    inline void *getEffectChaseInstance() const { return GetMemberFromOffset((void *)this, 0x824); }
 };
 
 class daBulletLauncher_c : public dEn_c
@@ -67,10 +67,10 @@ protected:
 
 public:
     static const Actors actorID = EN_KILLER_HOUDAI;
-    u32 *getAnimAllowShoot() const { return GetMemberFromOffset((void *)this, 0x500); }
-    u32 *getFrame() const { return GetMemberFromOffset((void *)this, 0xA3C); }
-    u32 *getCooldown() const { return GetMemberFromOffset((void *)this, 0xE1C); }
-    u32 *getState() const { return GetMemberFromOffset((void *)this, 0xE34); }
+    inline u32 *getAnimAllowShoot() const { return GetMemberFromOffset((void *)this, 0x500); }
+    inline u32 *getFrame() const { return GetMemberFromOffset((void *)this, 0xA3C); }
+    inline u32 *getCooldown() const { return GetMemberFromOffset((void *)this, 0xE1C); }
+    inline u32 *getState() const { return GetMemberFromOffset((void *)this, 0xE34); }
 };
 
 class daLemmyBall_c : public dEn_c
@@ -94,17 +94,17 @@ protected:
 public:
     static const Actors actorID = EN_BOUNCE_BALL;
 
-    u32 *getBounceState() const { return(u32 *) GetMemberFromOffset((void *)this, 0x360); } // 0x0=InAir, 0x00000001=OnGround, 0x00000002=Freeze
+    inline u32 *getBounceState() const { return(u32 *) GetMemberFromOffset((void *)this, 0x360); } // 0x0=InAir, 0x00000001=OnGround, 0x00000002=Freeze
 
-    bool *getPhysActive() const { return(bool *) GetMemberFromOffset((void *)this, 0x6A8); } // Default=0x00000001, 0x0 to disable interaction
+    inline bool *getPhysActive() const { return(bool *) GetMemberFromOffset((void *)this, 0x6A8); } // Default=0x00000001, 0x0 to disable interaction
 
-    float *getPhysScale() const { return(float *) GetMemberFromOffset((void *)this, 0x6C8); }    // Default=3f80000000
-    float *getDeformation() const { return(float *) GetMemberFromOffset((void *)this, 0x6E4); }  // Default=4198000000
-    float *getMaxFallSpeed() const { return(float *) GetMemberFromOffset((void *)this, 0x0F8); } // Default=0xc0c00000
-    float *getGravity() const { return(float *) GetMemberFromOffset((void *)this, 0x114); }      // Default=0xbe19999a
-    float *getHitboxX() const { return(float *) GetMemberFromOffset((void *)this, 0x5D8); }      // Default=0x0000e000
-    float *getHitboxY() const { return(float *) GetMemberFromOffset((void *)this, 0x5D0); }      // Default=0xffff2000
-    float *getPhysRadius() const { return(float *) GetMemberFromOffset((void *)this, 0x670); }   // Default=0x41666667
+    inline float *getPhysScale() const { return(float *) GetMemberFromOffset((void *)this, 0x6C8); }    // Default=3f80000000
+    inline float *getDeformation() const { return(float *) GetMemberFromOffset((void *)this, 0x6E4); }  // Default=4198000000
+    inline float *getMaxFallSpeed() const { return(float *) GetMemberFromOffset((void *)this, 0x0F8); } // Default=0xc0c00000
+    inline float *getGravity() const { return(float *) GetMemberFromOffset((void *)this, 0x114); }      // Default=0xbe19999a
+    inline float *getHitboxX() const { return(float *) GetMemberFromOffset((void *)this, 0x5D8); }      // Default=0x0000e000
+    inline float *getHitboxY() const { return(float *) GetMemberFromOffset((void *)this, 0x5D0); }      // Default=0xffff2000
+    inline float *getPhysRadius() const { return(float *) GetMemberFromOffset((void *)this, 0x670); }   // Default=0x41666667
 
     void setHitbox(int mode)
     {
@@ -183,31 +183,31 @@ public:
     static const Actors actorIDPole = EN_WANWAN_PILE;
     static const Actors actorIDChomp = EN_WANWAN;
 
-    u32 *getChainLength() const { return GetMemberFromOffset((void *)this, -0x64); }           //(0x0-0xF else exception)
-    u32 *getTurnDirection() const { return GetMemberFromOffset((void *)this, -0x70); }
-    u32 *getCooldownAfterLunge() const { return GetMemberFromOffset((void *)this, -0x84); }    //(second byte only)
-    u32 *getWaitForAttackCooldown() const { return GetMemberFromOffset((void *)this, -0xDC); } //(last byte only)
-    u32 *getAttackState() const { return GetMemberFromOffset((void *)this, -0x388); }          //(last byte only)
-    u32 *getHitsBeforeBreak() const { return GetMemberFromOffset((void *)this, 0x568); }       // Default=3
+    inline u32 *getChainLength() const { return GetMemberFromOffset((void *)this, -0x64); }           //(0x0-0xF else exception)
+    inline u32 *getTurnDirection() const { return GetMemberFromOffset((void *)this, -0x70); }
+    inline u32 *getCooldownAfterLunge() const { return GetMemberFromOffset((void *)this, -0x84); }    //(second byte only)
+    inline u32 *getWaitForAttackCooldown() const { return GetMemberFromOffset((void *)this, -0xDC); } //(last byte only)
+    inline u32 *getAttackState() const { return GetMemberFromOffset((void *)this, -0x388); }          //(last byte only)
+    inline u32 *getHitsBeforeBreak() const { return GetMemberFromOffset((void *)this, 0x568); }       // Default=3
 
-    u8 *getUnknown() const { return(u8 *) GetMemberFromOffset((void *)this, -0x178); }
+    inline u8 *getUnknown() const { return(u8 *) GetMemberFromOffset((void *)this, -0x178); }
 
-    u16 *getWhileAttackCooldown() const { return(u16 *) GetMemberFromOffset((void *)this, -0x1E8); }
+    inline u16 *getWhileAttackCooldown() const { return(u16 *) GetMemberFromOffset((void *)this, -0x1E8); }
 
-    bool IsAttack() const { return !(bool)*GetMemberFromOffset((void *)this, -0xD8); }
-    bool *getIgnoreAnchorX() const { return(bool *) GetMemberFromOffset((void *)this, -0x3A0); }
+    inline bool IsAttack() const { return !(bool)*GetMemberFromOffset((void *)this, -0xD8); }
+    inline bool *getIgnoreAnchorX() const { return(bool *) GetMemberFromOffset((void *)this, -0x3A0); }
 
-    float *getGravity() const { return(float *) GetMemberFromOffset((void *)this, -0x5D4); }   // Default=be400000
-    float *getPoleX() const { return(float *) GetMemberFromOffset((void *)this, 0xAC); }
-    float *getPoleY() const { return(float *) GetMemberFromOffset((void *)this, 0xB0); }
-    float *getChompPivotX() const { return(float *) GetMemberFromOffset((void *)this, -0xCC); }
-    float *getChompPivotY() const { return(float *) GetMemberFromOffset((void *)this, -0xC8); }
-    float *getTargetAngle() const { return(float *) GetMemberFromOffset((void *)this, -0xD4); }
+    inline float *getGravity() const { return(float *) GetMemberFromOffset((void *)this, -0x5D4); }   // Default=be400000
+    inline float *getPoleX() const { return(float *) GetMemberFromOffset((void *)this, 0xAC); }
+    inline float *getPoleY() const { return(float *) GetMemberFromOffset((void *)this, 0xB0); }
+    inline float *getChompPivotX() const { return(float *) GetMemberFromOffset((void *)this, -0xCC); }
+    inline float *getChompPivotY() const { return(float *) GetMemberFromOffset((void *)this, -0xC8); }
+    inline float *getTargetAngle() const { return(float *) GetMemberFromOffset((void *)this, -0xD4); }
 
-    mVec2_c *getPolePos() const { return(mVec2_c *) GetMemberFromOffset((void *)this, 0xAC); }
+    inline mVec2_c *getPolePos() const { return(mVec2_c *) GetMemberFromOffset((void *)this, 0xAC); }
 
-    mVec3_c *getPoleVisSize() const { return(mVec3_c *) GetMemberFromOffset((void *)this, 0xDC); }
-    void *getSmtAbtGroundpound() const { return(void *) GetMemberFromOffset((void *)this, 0x648); }
+    inline mVec3_c *getPoleVisSize() const { return(mVec3_c *) GetMemberFromOffset((void *)this, 0xDC); }
+    inline void *getSmtAbtGroundpound() const { return(void *) GetMemberFromOffset((void *)this, 0x648); }
 
     // Custom From Here
     mVec4_c getPoleHitboxExtents()
@@ -228,10 +228,10 @@ public:
         return;
     }
 
-    bool IsDead() const { return(bool) * GetMemberFromOffset((void *)this, -0x2BC) && !(bool)*GetMemberFromOffset((void *)this, -0x2B8); }
-    bool IsReleased() const { return(bool) * GetMemberFromOffset((void *)this, -0x2BC) && (bool)*GetMemberFromOffset((void *)this, -0x2B8); }
+    inline bool IsDead() const { return(bool) * GetMemberFromOffset((void *)this, -0x2BC) && !(bool)*GetMemberFromOffset((void *)this, -0x2B8); }
+    inline bool IsReleased() const { return(bool) * GetMemberFromOffset((void *)this, -0x2BC) && (bool)*GetMemberFromOffset((void *)this, -0x2B8); }
 
-    bool isChompValid()
+    inline bool isChompValid()
     {
         return(!IsDead() && !IsReleased());
     }
@@ -251,10 +251,10 @@ protected:
 
 public:
     static const Actors actorID = EN_DOSUN;
-    u8 *getFaceID() const { return(u8 *) GetMemberFromOffset((void *)this, 0x5B8); }
-    void *getRiseWaitTime() const { return GetMemberFromOffset((void *)this, 0x5DC); }
-    float *getDropYSpeed() const { return(float *) GetMemberFromOffset((void *)this, 0x114); }
-    u32 *getextraEffectToggle() const { return GetMemberFromOffset((void *)this, 0x5D0); }
+    inline u8 *getFaceID() const { return(u8 *) GetMemberFromOffset((void *)this, 0x5B8); }
+    inline void *getRiseWaitTime() const { return GetMemberFromOffset((void *)this, 0x5DC); }
+    inline float *getDropYSpeed() const { return(float *) GetMemberFromOffset((void *)this, 0x114); }
+    inline u32 *getextraEffectToggle() const { return GetMemberFromOffset((void *)this, 0x5D0); }
 };
 
 class daFiresnake_c : public dEn_c
@@ -300,12 +300,12 @@ public:
     static const u32 StateID_Turning = 0x8099e838;
     static const u32 StateID_Stationary = 0x8099e878;
 
-    u8 *getRotDirection() const { return(u8 *) GetMemberFromOffset((void *)this, 0x348); }
+    inline u8 *getRotDirection() const { return(u8 *) GetMemberFromOffset((void *)this, 0x348); }
 
-    u32 *getTurnTimer() const { return GetMemberFromOffset((void *)this, 0x4A4); }
-    u32 *BlackMagicLiesHere() const { return GetMemberFromOffset((void *)this, 0xC); }
+    inline u32 *getTurnTimer() const { return GetMemberFromOffset((void *)this, 0x4A4); }
+    inline u32 *BlackMagicLiesHere() const { return GetMemberFromOffset((void *)this, 0xC); }
 
-    float *getCurrentAngle() const { return(float *) GetMemberFromOffset((void *)this, 0x4A0); }
+    inline float *getCurrentAngle() const { return(float *) GetMemberFromOffset((void *)this, 0x4A0); }
 };
 
 namespace Spawners
@@ -316,8 +316,8 @@ namespace Spawners
     public:
         static const Actors actorID = WAKI_PARABOM;
 
-        u32 *getAllowDrop() const { return GetMemberFromOffset((void *)this, 0xF68); }
-        u32 *getSpawnTimer() const { return GetMemberFromOffset((void *)this, 0xF70); } // Decreases only while not Grounded
+        inline u32 *getAllowDrop() const { return GetMemberFromOffset((void *)this, 0xF68); }
+        inline u32 *getSpawnTimer() const { return GetMemberFromOffset((void *)this, 0xF70); } // Decreases only while not Grounded
 
         /*
         0=Normal
@@ -331,7 +331,7 @@ namespace Spawners
         4=Unk
         5=Spawn upon Jump, either 1 or 2 spawns
         */
-        u32 *getSpawnTimerMod() const { return GetMemberFromOffset((void *)this, 0xF78); }
+        inline u32 *getSpawnTimerMod() const { return GetMemberFromOffset((void *)this, 0xF78); }
     };
 
     class dPipeSpawner_c : public dActor_c
@@ -339,10 +339,10 @@ namespace Spawners
     public:
         static const Actors actorID = DOKAN_WAKIDASHI;
 
-        u32 *getSpawnTimer() const { return GetMemberFromOffset((void *)this, 0x390); }
-        u32 *getTotalCycles() const { return GetMemberFromOffset((void *)this, 0x3A8); }
+        inline u32 *getSpawnTimer() const { return GetMemberFromOffset((void *)this, 0x390); }
+        inline u32 *getTotalCycles() const { return GetMemberFromOffset((void *)this, 0x3A8); }
 
-        u16 *getCurrentSpawnsCompleted() const { return(u16 *) GetMemberFromOffset((void *)this, 0x394); }
+        inline u16 *getCurrentSpawnsCompleted() const { return(u16 *) GetMemberFromOffset((void *)this, 0x394); }
     };
 
     class dRollingSpawner_c : public dActor_c
@@ -353,20 +353,20 @@ namespace Spawners
         // void* LatestSpawnPtr at 8154160c
         // u32 MaxSpawnedAtOnce at 81541498
         // u32 spawnTimer at 81541494,
-        u16 *getRollingSpeed() const { return(u16 *) GetMemberFromOffset((void *)this, 0x004); } // i know its the dEn_c::settings var, but thats just how speed works on this object
+        inline u16 *getRollingSpeed() const { return(u16 *) GetMemberFromOffset((void *)this, 0x004); } // i know its the dEn_c::settings var, but thats just how speed works on this object
 
-        u32 *getMaxAliveChildren() const { return GetMemberFromOffset((void *)this, 0x398); } // Unlimited, unlike the dEn_c::settings ones
-        u32 *getSpawnTimer() const { return GetMemberFromOffset((void *)this, 0x394); }       // Default=0x000000b4
-        u32 *getSpawningType() const { return GetMemberFromOffset((void *)this, 0x39C); }     // Ball=0 or Barrel=1
+        inline u32 *getMaxAliveChildren() const { return GetMemberFromOffset((void *)this, 0x398); } // Unlimited, unlike the dEn_c::settings ones
+        inline u32 *getSpawnTimer() const { return GetMemberFromOffset((void *)this, 0x394); }       // Default=0x000000b4
+        inline u32 *getSpawningType() const { return GetMemberFromOffset((void *)this, 0x39C); }     // Ball=0 or Barrel=1
 
-        dEn_c *getLastSpawnedObject() const { return(dEn_c *) GetMemberFromOffset((void *)this, 0x50C); }
+        inline dEn_c *getLastSpawnedObject() const { return(dEn_c *) GetMemberFromOffset((void *)this, 0x50C); }
     };
 
 
     class daLakitu : public dEn_c {
         //The cloud appears to be constructed using ID 56 and the settings 102, unless 0x00X00000 is set to 1, in which case its 100
         public:
-        u16* getIsPissingOff() const { return (u16*)GetMemberFromOffset((void*)this, 0x438); }
+        inline u16* getIsPissingOff() const { return (u16*)GetMemberFromOffset((void*)this, 0x438); }
 
         void setPissOff() {
             u32 value = this->mParam;
@@ -404,12 +404,12 @@ namespace Spawners
         static const float* getMaxSize() {return (const float*)&DAT_ICICLESIZE; } //Default: 0x3f800000
         static const float* getGrowStep() {return (const float*)&DAT_ICICLEGROW; } //Default: 0x3b888889
 
-        const bool getIsParent() const {return *(unsigned char*)GetMemberFromOffset((void*)this, 0x4) == 0; }
-        dActor_c* getChild() const {return (dActor_c*)(((unsigned char*)*GetMemberFromOffset((void*)this, 0x14)) - 0x10); }
+        inline const bool getIsParent() const {return *(unsigned char*)GetMemberFromOffset((void*)this, 0x4) == 0; }
+        inline dActor_c* getChild() const {return (dActor_c*)(((unsigned char*)*GetMemberFromOffset((void*)this, 0x14)) - 0x10); }
         
-        float* getSpeedY()       const {return (float*)GetMemberFromOffset((void*)this,  0xEC); }
-        float* getSpeedAccellY() const {return (float*)GetMemberFromOffset((void*)this, 0x114); }
-        bool getIcicleType()     const {return   (bool)GetMemberFromOffset((void*)this, 0x610); }
+        inline float* getSpeedY()       const {return (float*)GetMemberFromOffset((void*)this,  0xEC); }
+        inline float* getSpeedAccellY() const {return (float*)GetMemberFromOffset((void*)this, 0x114); }
+        inline bool getIcicleType()     const {return   (bool)GetMemberFromOffset((void*)this, 0x610); }
 
         void LogExistence() {
             dActor_c* child;
@@ -471,27 +471,48 @@ protected:
     void rotateTouchingObjects();
 
 public:
-    u8 *getWierdThing() const { return(u8 *) GetMemberFromOffset((void *)this, 0x4C4); }
+    inline u8 *getWierdThing() const { return(u8 *) GetMemberFromOffset((void *)this, 0x4C4); }
 
-    u16 *getRoll() const { return(u16 *) GetMemberFromOffset((void *)this, 0x104); }
-    u16 *getRollSpeed() const { return(u16 *) GetMemberFromOffset((void *)this, 0x4D0); }
-    u16 *getCollToggle() const { return(u16 *) GetMemberFromOffset((void *)this, 0x450); }
+    inline u16 *getRoll() const { return(u16 *) GetMemberFromOffset((void *)this, 0x104); }
+    inline u16 *getRollSpeed() const { return(u16 *) GetMemberFromOffset((void *)this, 0x4D0); }
+    inline u16 *getCollToggle() const { return(u16 *) GetMemberFromOffset((void *)this, 0x450); }
 
-    u32 *getCollStuff() const { return GetMemberFromOffset((void *)this, 0x420); }
+    inline u32 *getCollStuff() const { return GetMemberFromOffset((void *)this, 0x420); }
 
-    float *getPhysRadius() const { return(float *) GetMemberFromOffset((void *)this, 0x4D4); }
-    float *getVisScale() const   { return(float *) GetMemberFromOffset((void *)this, 0x4D8); }
-    float *getDriftCap() const   { return(float *) GetMemberFromOffset((void *)this, 0x4DC); } // Often Empty. Maybe overwrite in preGameLoop()
+    inline float *getPhysRadius() const { return(float *) GetMemberFromOffset((void *)this, 0x4D4); }
+    inline float *getVisScale() const   { return(float *) GetMemberFromOffset((void *)this, 0x4D8); }
+    inline float *getDriftCap() const   { return(float *) GetMemberFromOffset((void *)this, 0x4DC); } // Often Empty. Maybe overwrite in preGameLoop()
 
     // This is a static const somewhere around rtoc + 0x77??, No idea what it does :shrug:
-    const float *getSomething() { return(float *) 0x8042BC48; }
+    static const float *getSomething() { return(float *) 0x8042BC48; }
+
+    //This is nonfunctional due to lack of understanding the mechanics on which the visuals scale
+    void ChangeSize(float modifier) {
+        int settingsSizeBit = (this->mParam & 0x00F00000) >> 20;
+        float visScale;
+        float physScale;
+        switch(settingsSizeBit) {
+            case 0: visScale = 0.1f; physScale = 16.f; break;
+            case 1: visScale = 0.9f; physScale = 144.f; break;
+            case 2: visScale = 1.6f; physScale = 256.f; break;
+            case 3: visScale = 2.5f; physScale = 400.f; break;
+            case 4: visScale = 3.2f; physScale = 512.f; break;
+            case 5: visScale = 0.5f; physScale = 00.f; break;
+            case 6: visScale = 0.7f; physScale = 112.f; break;
+            case 7: visScale = 1.0f; physScale = 160.f; break;
+            default: return;
+        }
+        this->mScale *= modifier;
+        *this->getPhysRadius() = physScale * modifier;
+        return;
+    }
 };
 
 //This Class has been patched, to allow Upwards movement. 0x000000X0 sets fall type, 2 + 3 we're added
 class dFallPlatform_c : public dActorState_c {
     public:
     static const Actors actorID = AC_LIFT_FALL;
-    float* getFallSpeed() const { return (float*)GetMemberFromOffset((void*)this, 0x114); }
+    inline float* getFallSpeed() const { return (float*)GetMemberFromOffset((void*)this, 0x114); }
 };
 
 //This was a complete waste of my time :(
@@ -503,8 +524,8 @@ class dBouncyCloud : public dActor_c {
 class dRollingLinePlatform_c : public dActor_c {
     public:
     static const Actors actorID = LINE_KINOKO_BLOCK;
-    float* getMoveSpeed() const {return (float*)GetMemberFromOffset((void*)this, 0x5CC); }
-    u16* getRotateSpeed() const {return   (u16*)GetMemberFromOffset((void*)this, 0x5D0); }
+    inline float* getMoveSpeed() const {return (float*)GetMemberFromOffset((void*)this, 0x5CC); }
+    inline u16* getRotateSpeed() const {return   (u16*)GetMemberFromOffset((void*)this, 0x5D0); }
 };
 
 //This is the part where i stop knowing what is and is not reguarded as "da"
@@ -537,23 +558,23 @@ class daIceAshibaBase_c : public dActor_c {
     public:
     int create();
 
-    UnChar *getAnimationDecelerator()   const {return (UnChar*)GetMemberFromOffset((void*)this, 0x4E0); }
-    const UnChar *getWobbleState()      const {return (UnChar*)GetMemberFromOffset((void*)this, 0x534); }
-    UnChar *getWobbleToggle()           const {return (UnChar*)GetMemberFromOffset((void*)this, 0x536); }
+    inline UnChar *getAnimationDecelerator()   const {return (UnChar*)GetMemberFromOffset((void*)this, 0x4E0); }
+    inline const UnChar *getWobbleState()      const {return (UnChar*)GetMemberFromOffset((void*)this, 0x534); }
+    inline UnChar *getWobbleToggle()           const {return (UnChar*)GetMemberFromOffset((void*)this, 0x536); }
     
-    u16* getPathDirection()             const {return (u16*)GetMemberFromOffset((void*)this, 0x508); }
-    u16* getPathTarget()                const {return (u16*)GetMemberFromOffset((void*)this, 0x50A); }
+    inline u16* getPathDirection()             const {return (u16*)GetMemberFromOffset((void*)this, 0x508); }
+    inline u16* getPathTarget()                const {return (u16*)GetMemberFromOffset((void*)this, 0x50A); }
 
-    u32* getMoveStopTimer()             const {return GetMemberFromOffset((void*)this, 0x504); }
-    u32* getSomeTimer()                 const {return GetMemberFromOffset((void*)this, 0x510); }
-    u32* getVisOscillatedRot()          const {return GetMemberFromOffset((void*)this, 0x530); }
+    inline u32* getMoveStopTimer()             const {return GetMemberFromOffset((void*)this, 0x504); }
+    inline u32* getSomeTimer()                 const {return GetMemberFromOffset((void*)this, 0x510); }
+    inline u32* getVisOscillatedRot()          const {return GetMemberFromOffset((void*)this, 0x530); }
 
-    mVec2_c* getPathingGoalPosition()   const {return (mVec2_c*)GetMemberFromOffset((void*)this, 0x4EC); }
-    mVec2_c* getPathingNextPosition()   const {return (mVec2_c*)GetMemberFromOffset((void*)this, 0x518); }
-    mVec2_c* getRailOffset()            const {return (mVec2_c*)GetMemberFromOffset((void*)this, 0x524); }
+    inline mVec2_c* getPathingGoalPosition()   const {return (mVec2_c*)GetMemberFromOffset((void*)this, 0x4EC); }
+    inline mVec2_c* getPathingNextPosition()   const {return (mVec2_c*)GetMemberFromOffset((void*)this, 0x518); }
+    inline mVec2_c* getRailOffset()            const {return (mVec2_c*)GetMemberFromOffset((void*)this, 0x524); }
 
-    float* getPathingModifierX()        const {return (float*)GetMemberFromOffset((void*)this, 0x4F0);   }
-    float* getPathingModifierY()        const {return (float*)GetMemberFromOffset((void*)this, 0x51C);   }
+    inline float* getPathingModifierX()        const {return (float*)GetMemberFromOffset((void*)this, 0x4F0);   }
+    inline float* getPathingModifierY()        const {return (float*)GetMemberFromOffset((void*)this, 0x51C);   }
 };
 
 //This actor does have a few members, but nothing interesting enough that i can modify to mess with things
@@ -575,34 +596,57 @@ class daHuckit_c : public dActor_c {
 
 class dCheep_c : public dActor_c {
     static const Actors actorID = EN_TOBIPUKU;
-    u32* getUnkTimer()               const {return          GetMemberFromOffset((void*)this, 0xE60);}
-    u32* getShouldAnimate()          const {return          GetMemberFromOffset((void*)this, 0xEA0);}
+    inline u32* getUnkTimer()               const {return          GetMemberFromOffset((void*)this, 0xE60);}
+    inline u32* getShouldAnimate()          const {return          GetMemberFromOffset((void*)this, 0xEA0);}
 
-    u8* getSpinAnimationState()      const {return      (u8*)GetMemberFromOffset((void*)this, 0xE76);}
-    u8* getSpinAnimationMultiplier() const {return      (u8*)GetMemberFromOffset((void*)this, 0xE7A);}
+    inline u8* getSpinAnimationState()      const {return      (u8*)GetMemberFromOffset((void*)this, 0xE76);}
+    inline u8* getSpinAnimationMultiplier() const {return      (u8*)GetMemberFromOffset((void*)this, 0xE7A);}
 
-    mVec4_c* getPathLimits()         const {return (mVec4_c*)GetMemberFromOffset((void*)this, 0x618);}
+    inline mVec4_c* getPathLimits()         const {return (mVec4_c*)GetMemberFromOffset((void*)this, 0x618);}
 };
 
 //Next up
 class dPorcuPuffer_c : public dEn_c {
     static const Actors actorID = EN_IGAPUKU;
-    mVec2_c* getVelocityOverride()  const {return (mVec2_c*)GetMemberFromOffset((void*)this, 0x114); } //Applies after jumping, if done wrong will cause it to fly offscreen
-    mVec2_c* getHitboxScale()       const {return (mVec2_c*)GetMemberFromOffset((void*)this, 0x16C); } //Not per-frame set! Lets gooo
-    mVec4_c* getSplashEffecPos()    const {return (mVec4_c*)GetMemberFromOffset((void*)this, 0x5C8); } //What the hell does W do? :sob:
+    inline mVec2_c* getVelocityOverride()  const {return (mVec2_c*)GetMemberFromOffset((void*)this, 0x114); } //Applies after jumping, if done wrong will cause it to fly offscreen
+    inline mVec2_c* getHitboxScale()       const {return (mVec2_c*)GetMemberFromOffset((void*)this, 0x16C); } //Not per-frame set! Lets gooo
+    inline mVec4_c* getSplashEffecPos()    const {return (mVec4_c*)GetMemberFromOffset((void*)this, 0x5C8); } //What the hell does W do? :sob:
 
-    float* getTurnEaseSpeed()       const {return (float*)GetMemberFromOffset((void*)this, 0x11C); }
-    float* getRightMoveEdge()       const {return (float*)GetMemberFromOffset((void*)this, 0x5DC); } //Mostly Right Screen edge, or stage edge. Possibly set per frame.
-    float* getBuoyancyPostJump()    const {return (float*)GetMemberFromOffset((void*)this, 0x5D8); } //Why is this spelt like that :sob:
+    inline float* getTurnEaseSpeed()       const {return (float*)GetMemberFromOffset((void*)this, 0x11C); }
+    inline float* getRightMoveEdge()       const {return (float*)GetMemberFromOffset((void*)this, 0x5DC); } //Mostly Right Screen edge, or stage edge. Possibly set per frame.
+    inline float* getBuoyancyPostJump()    const {return (float*)GetMemberFromOffset((void*)this, 0x5D8); } //Why is this spelt like that :sob:
 
-    u8* getDirectionRaw()           const {return (u8*)GetMemberFromOffset((void*)this, 0x348); }
+    inline u8* getDirectionRaw()           const {return (u8*)GetMemberFromOffset((void*)this, 0x348); }
 
-    u32* getJumpState()             const {return GetMemberFromOffset((void*)this, 0x360); }
+    inline u32* getJumpState()             const {return GetMemberFromOffset((void*)this, 0x360); }
 
-    u16* getWaterSlideEffLink()     const {return (u16*)GetMemberFromOffset((void*)this, 0x664); } //This detaches the effect, which also means it will live forever at a modifiable position.
-    u16* getWaterSlideHandle()      const {return (u16*)GetMemberFromOffset((void*)this, 0x666); } //The Devil, dun dun duuuhhhhhhhhhhhhhh + ^^^^^^ applies.
-    u16* getWaterSplashEffLink()    const {return (u16*)GetMemberFromOffset((void*)this, 0x78C); } //May be effectID, not sure yet.
-    u16* getWaterSplashHandle()     const {return (u16*)GetMemberFromOffset((void*)this, 0x78E); } //^^^^^^ applies.
+    inline u16* getWaterSlideEffLink()     const {return (u16*)GetMemberFromOffset((void*)this, 0x664); } //This detaches the effect, which also means it will live forever at a modifiable position.
+    inline u16* getWaterSlideHandle()      const {return (u16*)GetMemberFromOffset((void*)this, 0x666); } //The Devil, dun dun duuuhhhhhhhhhhhhhh + ^^^^^^ applies.
+    inline u16* getWaterSplashEffLink()    const {return (u16*)GetMemberFromOffset((void*)this, 0x78C); } //May be effectID, not sure yet.
+    inline u16* getWaterSplashHandle()     const {return (u16*)GetMemberFromOffset((void*)this, 0x78E); } //^^^^^^ applies.
+};
+
+enum FluidType {
+    WATER=(u8)0,
+    LAVA=(u8)1,
+    POISON=(u8)2,
+    BUBBLE=(u8)3,
+    BUBBLEHALFX=(u8)4,
+    BUBBLEHALFY=(u8)5
+};
+
+struct FluidVolumeInfo_s {
+    float x,y,z,width,height;
+    u32 active;
+    FluidType type;
+    u8 layer;
+};
+
+class FluidManager_c {
+    public:
+    static FluidManager_c* instance;
+    FluidVolumeInfo_s Fluids[80];
+    float current;
 };
 
 #undef UnChar

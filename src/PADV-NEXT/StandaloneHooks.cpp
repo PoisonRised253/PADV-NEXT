@@ -1,5 +1,8 @@
 #include "PADV-NEXT/defines.h"
 
+extern void* DAT_GIRDERUPSPEED;
+extern void* DAT_GIRDERDOWNSPEED;
+
 ext volatile void FallPlatformPatch()
 {
     asm("srwi r0, r0, 4\n andi. r0, r0, 0xF");
@@ -23,6 +26,35 @@ ext void DeathMushHandler(dAcPy_c *toucher)
     return;
 }
 
+ext u32 GirderPatch(u32 buff, dActor_c* ac) {
+    static float* up = (float*)&DAT_GIRDERUPSPEED;
+    static float* down = (float*)&DAT_GIRDERDOWNSPEED;
+    static const float defaultX = *up;
+    static const float defaultY = *down;
+    char speedUp = (ac->mParam & 0x00F00000) >> 20;
+    char speedUpComma = (ac->mParam & 0x000F0000) >> 16;
+    char speedDown = (ac->mParam & 0x0000F000) >> 12;
+    char speedDownComma = (ac->mParam & 0x00000F00) >> 8;
+
+    register float finalX = speedUp, finalY = -speedDown, finalXC = speedUpComma, finalYC = -speedDownComma;
+    if(!speedUp && !speedUpComma) finalX = defaultX;
+    if(!speedDown && !speedDownComma) finalY = defaultY;
+
+    *up = finalX + (finalXC / 10.f);
+    *down = finalY + (finalYC / 10.f);
+    //The lines below are a Kamek2 specific fix that is required for unknown reasons.
+    #ifdef PADV
+    asm("mflr r3");
+    asm("addi r3, r3, 4");
+    asm("mtlr r3");
+    #endif
+    
+    return 1;
+}
+
+
 kmBranchDefCpp(0x80837a80, NULL, void, void) { FallPlatformPatch(); }
 
 kmBranchDefCpp(0x80147600, NULL, void, dAcPy_c *player) { DeathMushHandler(player); }
+
+kmBranchDefCpp(0x8083c43c, NULL, void, u32 buff, dActor_c* ac) { GirderPatch(buff, ac); };

@@ -33,4 +33,7 @@ ext void FloatyTower();
 ext void SlideyBlocks();
 ext void WierdLineBlock(); //even more shit name lmfao
 ext void SnakeBlockFuckery();
+
+//W4
+ext void WaterStrangeness();
 #endif

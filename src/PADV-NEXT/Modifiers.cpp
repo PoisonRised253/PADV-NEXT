@@ -138,10 +138,10 @@ ext void ShyRollers()
     dActor_c *n = (dActor_c *)GetNextOfType(AC_FLOOR_GYRATION, NULL);
     for (int i = 0; i < 6; i++)
     {
-        if (n && !n->mVisible)
+        if(!n) continue;
+        if (!n->mVisible)
             n = (dActor_c *)GetNextOfType(AC_FLOOR_GYRATION, n);
-        if (n)
-            n->mVisible = false;
+        n->mVisible = false;
     }
 
     return;
@@ -299,7 +299,7 @@ ext void FixRoys()
     if (!stage)
         return;
 
-    if (dInfo_c::m_instance && dInfo_c::m_instance->m_startGameInfo.mArea != 1 && Players[0] && Players[0]->mPos.x != 0)
+    if (dInfo_c::m_instance && isInStage && !EnteredStage)
     {
         dNext_c *n = dNext_c::m_instance;
         if (!n)
@@ -311,9 +311,7 @@ ext void FixRoys()
         if (!player)
             return;
         player->changeNextScene(1);
-        stage->mCurrAreaNo = 1;
-        stage->mCurrCourse = 0x18;
-        dInfo_c::m_instance->m_startGameInfo.mArea = 1;
+        EnteredStage = true;
     }
     return;
 }
@@ -340,53 +338,14 @@ ext void CastleBlowers(bool isReady) {
     dActor_c *obj = GetNextOfType(AC_AUTOSCROOL_SWICH, NULL);
     if (!obj)
         return;
-
-    if (JustSpawned)
-    {
-        JustSpawned = false;
-        return;
-    }
-
-    //if (IsNaN(obj->mPos.x) || IsNaN(obj->mPos.y))
-    //    return;
-
+    if (JustSpawned) { JustSpawned = false; return; }
+    
     mVec3_c newPos = obj->mPos;
     int which = obj->mParam;
-    if (which <= 0)
+    if (which == 0x0)
         return;
     JustSpawned = true;
-    dBlower_c* blower;
-
-    if (which == 1)
-    {
-        mVec2_c area = mVec2_c(8.75f, 2.f);
-        blower = new dBlower_c(newPos, area, 12.f);
-        area.~mVec2_c();
-        goto skip;
-    }
-    else if (which == 2)
-    {
-        mVec2_c area = mVec2_c(16.f, 6.f);
-        blower = new dBlower_c(newPos, area, 12.f);
-        area.~mVec2_c();
-        goto skip;
-    }
-    else if (which == 3)
-    {
-        mVec2_c area = mVec2_c(256.f, 64.f);
-        blower = new dBlower_c(newPos, area, 32.f);
-        area.~mVec2_c();
-        goto skip;
-    }
-    else if (which == 4)
-    {
-        mVec2_c area = mVec2_c(96.f, 256.f);
-        blower = new dBlower_c(newPos, area, 32.f);
-        area.~mVec2_c();
-        goto skip;
-    }
-
-    skip:
+    dBlower_c::createFromParam(newPos.x, newPos.y, which);
     obj->deleteRequest();
     JustSpawned = true;
     which = 0;
@@ -509,7 +468,9 @@ ext void BetterGhosts()
 // No solid idea yet, workin on it.
 ext void FloatyTower()
 {
-
+    for(int i = 0; i < 4; i++) {
+        if(!Players[i]) continue;
+    }
 }
 
 // 3 - 4
@@ -522,6 +483,11 @@ ext void SlideyBlocks()
         return;
 
     bool layers[3] = {gm->CheckExistLayer(-1), gm->CheckExistLayer(0), gm->CheckExistLayer(1)};
+    //Upwards,Downwards,Leftwards,Rightwards
+    //L,R | L,R | U,D | U,D
+    u16 disallowedTilesGreen[8] =  {0x60,0x61,0x80,0x81,0x62,0x72,0x64,0x74};
+    u16 disallowedTilesYellow[8] = {0x65,0x66,0x85,0x86,0x69,0x79,0x67,0x77};
+    u16 disallowedTilesRed[8] =    {0x6a,0x6b,0x8a,0x8b,0x6e,0x7e,0x6c,0x7c};
 
     for (int i = 0; i < 4; i++)
     {
@@ -577,7 +543,7 @@ ext void WierdLineBlock()
     static int state = 0;
     static bool flip = false;
     dRollingLinePlatform_c *platform = (dRollingLinePlatform_c *)GetNextOfType(dRollingLinePlatform_c::actorID, false);
-    if (!platform || !CallSpacer(15))
+    if (!platform)
         return;
 
     if (state > 30)
@@ -624,6 +590,35 @@ ext void SnakeBlockFuckery()
     daSnakeBlock_c *s = (daSnakeBlock_c *)GetNextOfType(daSnakeBlock_c::actorID, NULL);
     if (s) s->GenerateHoleNow();
     return;
+}
+
+ext void WaterStrangeness() {
+    static int Delay = 2;
+    static int nextLayer = 0;
+    static dBg_c *gm = dBg_c::m_bg_p;
+    u8* mainVolume = (u8*)&DAT_WATERLAYERZERO;
+    if(!isInStage) return;
+    if(Delay > 0) {Delay--; return; }
+    else Delay = 2;
+    nextLayer++;
+    if(nextLayer == 3) nextLayer = 0;
+    *mainVolume = nextLayer;
+    for(int i = 0; i < 4; i++) {
+        if(!Players[i]) continue;
+        SetActorCollisionLayer(Players[i], nextLayer);
+        //Players[i]->setWaterWalkFlag();
+        u16 x = ((u16)Players[i]->mPos.x) & 0xFFF0;
+        u16 y = ((u16)(-Players[i]->mPos.y)) & 0xFFF0;
+        y -= 16;
+
+        u16 *NearestTiles[4] = {
+            gm->__GetUnitPointer(x - 16, y, nextLayer, NULL, NULL),
+            gm->__GetUnitPointer(x + 16, y, nextLayer, NULL, NULL),
+            gm->__GetUnitPointer(x, y - 16, nextLayer, NULL, NULL),
+            gm->__GetUnitPointer(x, y + 16, nextLayer, NULL, NULL)};
+
+        if(*NearestTiles[0] && *NearestTiles[1] && *NearestTiles[2] && *NearestTiles[3]) Players[i]->mPos.y -= 1000;
+    }
 }
 
 // Unused stuff:

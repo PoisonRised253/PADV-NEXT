@@ -13,6 +13,16 @@ T clamp(T value, T min, T max)
 }
 
 template <typename T>
+T clampSymmetric(T value, T limit)
+{
+    if (value <= -Abs(limit))
+        return -Abs(limit);
+    if (value >= Abs(limit))
+        return Abs(limit);
+    return value;
+}
+
+template <typename T>
 T Abs(T value) {
     if(value < 0) return -value;
     return value;
