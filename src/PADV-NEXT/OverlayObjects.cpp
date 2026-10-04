@@ -13,8 +13,8 @@ dBlower_c::dBlower_c(mVec3_c pos, mVec2_c rect, mVec2_c intensity) : mEff(mEf::e
     mVec3_c effectScale = mVec3_c(rect.x + (effectScaleFix * rect.x), rect.y, 1);
     mVec3_c effectPos = mVec3_c(mPos.x, mPos.y - (mScale.y / 2), -6500.f);
     mEff.createEffect(getEffectName(), 0, &effectPos, &mAng3_c::Zero, &effectScale);
-    int freeSlot = FindNextFreeArrayEntry((void**)Blowers, Capacity);
-    OSReport("freeSlot == %i\n", freeSlot);
+    int freeSlot = FindNextFreeArrayEntry((void**)Blowers, MaxInstances);
+    //OSReport("freeSlot == %i\n", freeSlot);
     if(freeSlot != 0xFFFF) {
         mAssignedSlot = freeSlot;
         Blowers[freeSlot] = this;
@@ -78,9 +78,10 @@ void dBlower_c::ApplyForce(dActor_c* obj[]) {
             clampSymmetric(obj[i]->mSpeed.y + mFrameIntensity.y, mIntensity.y)
         );
         if(isPlayer && CompareAgainstInput(WPAD_BUTTON_2, i)) {
-            calc.x = Players[i]->mSpeedF;
+            clampSymmetric(obj[i]->mSpeedF + (mFrameIntensity.x / 8), mIntensity.x),
             calc.y = clampSymmetric(obj[i]->mSpeed.y + mFrameIntensity.y, mIntensity.y / 3);
         }
+        OSReport("ID=%i,FX=%f,FY%f\n", mAssignedSlot,calc.x,calc.y);
         if(mIntensity.x != 0) obj[i]->mSpeedF = calc.x;
         if(mIntensity.y != 0) obj[i]->mSpeed.y = calc.y;
     }
@@ -98,11 +99,11 @@ const char* dBlower_c::getEffectName() {
 
 void dBlower_c::createFromParam(float x, float y, u32 mParam) {
     if(x == 0 || y == 0) return;
-    u8 xs = (mParam & 0xFF000000) >> 24, ys = (mParam & 0x00FF0000) >> 16;
+    char xs = (mParam & 0xFF000000) >> 24, ys = (mParam & 0x00FF0000) >> 16;
     char signX = ((mParam & 0x0000F000) >> 12), signY = ((mParam & 0x000000F0) >> 4);
     float intenX = (float)((mParam & 0x00000F00) >> 8), intenY = (float)(mParam & 0x0000000F);
     if(signX > 0) intenX = -intenX;
     if(signY > 0) intenY = -intenY;
    
-    new dBlower_c(mVec3_c(x,y,0),mVec2_c(xs,ys),mVec2_c(intenX, intenY));
+    new dBlower_c(mVec3_c(x,y,0),mVec2_c(abs(xs),abs(ys)),mVec2_c(intenX, intenY));
 }
