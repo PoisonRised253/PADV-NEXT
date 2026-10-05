@@ -1,12 +1,10 @@
 This is a mod for New Super Mario Bros Wii, in which a different Effect is given to each stage. 
-It ranges from Visual Changes, over Gravity Changes, and up to Porting WorldMap Type movement into a Stage.
+It ranges from Visual Changes, to inventing new Objects.
 I will be expanding this Mod as much as i can, however expect it to be slow
 
 Technical Details:  
 Warning: This was made by someone who's self-taught themselves all of their coding-knowledge. This Means my Code might contain very many sins. Beware!  
-It does not use Newer gameplay changes/features.    
-It uses a mix of existing and newly included addresses in kamek_region.x.   
-It includes .arc edits, and tries to be funny with that. (Repo/Mod_Assets)  
+It does not use Newer gameplay changes/features.
 
 If ive learned one thing from making this mod, its definately that Nintendo must be smoking some premium crack at HQ. The Codebase of the Base-Game is so wierd and questionable, im surprised this game didnt fall like a house of cards.
 
