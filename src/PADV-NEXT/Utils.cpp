@@ -300,6 +300,7 @@ ext void DumpPlayer(int which)
             gm->__GetUnitPointer(x, y + 16, 0, NULL, NULL)};
 
     OSReport("\n--------------------------------------\n---Player %i Dump:---\n---Pointer: %p---\n---Power: %p---\n---IsDemo: %i---\n---IsPause: %i---\n---IsGrounded: %i---\n---State: %p---\n---Level: %i---\n---World: %i---\n---Area: %i---\n------NearestTiles:------\n---Up: %p---\n---Down: %p---\n---Left: %p---\n---Right: %p---\n--------------------------------------\n\n", which, Players[which], *GetPlayerPowerState(Players[which]), *isDemo(Players[which]), isPause(), (bool)*checkGrounded(Players[which]), *checkAllowedMoves(Players[which]), dScStage_c::m_instance->mCurrCourse, dScStage_c::m_instance->mCurrWorld, dScStage_c::m_instance->mCurrAreaNo, *NearestTiles[2], *NearestTiles[3], *NearestTiles[0], *NearestTiles[1]);
+    dActor_c::construct(EN_ITEM, 0x000000F9, &mVec3_c(Players[which]->mPos.x, Players[which]->mPos.y + 128, 0), &mAng3_c::Zero, 0);
     return;
 }
 #endif
@@ -434,6 +435,26 @@ ext void AntiBubble()
         bubble->mPos = Players[i]->mPos;
     }
     return;
+}
+
+ext bool TryCreateOverlay(int OverlayObjectType, Actors OverlayedActorID) {
+    dActor_c *obj = GetNextOfType(OverlayedActorID, NULL);
+    if (!obj)
+        return false;
+    int which = obj->mParam;
+    if (which == 0x0)
+        return false;
+    mVec3_c newPos = obj->mPos;
+    OSReport("Position=%f,%f\n", newPos.x, newPos.y);
+
+    switch(OverlayObjectType) {
+        case 1: dBlower_c::createFromParam(newPos.x, newPos.y, which, OverlayedActorID); break;
+        case 2: dPlayerModifier_c::createFromParam(newPos.x, newPos.y, which, OverlayedActorID); break;
+        default: return false;
+    }
+
+    obj->deleteRequest();
+    return true;
 }
 
 #ifdef DEBUG_BALLS

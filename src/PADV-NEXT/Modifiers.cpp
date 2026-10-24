@@ -295,12 +295,10 @@ ext void FuckTwoSix()
 
 ext void FixRoys()
 {
-    dScStage_c* stage = dScStage_c::m_instance;
-    if (!stage)
-        return;
-
     if (dInfo_c::m_instance && isInStage && !EnteredStage)
     {
+        // Checkpoint fix
+        if(dInfo_c::m_instance->mCyuukan.mPlayerSetPos.x) {EnteredStage = true; return;}
         dNext_c *n = dNext_c::m_instance;
         if (!n)
             return;
@@ -310,6 +308,7 @@ ext void FixRoys()
         daPlBase_c *player = (daPlBase_c *)Players[0];
         if (!player)
             return;
+            
         player->changeNextScene(1);
         EnteredStage = true;
     }
@@ -317,7 +316,8 @@ ext void FixRoys()
 }
 
 // TODO: PLEASE FIX HomeMenu pause exploit. | DONE
-// TODO: Fix MP failure to die, when floating infinitely.
+// TODO: Fix MP failure to die, when floating infinitely. | Untested
+// TODO: Add Stuckfix (fall upwards patch)
 ext void CastleBlowers(bool isReady) {
     static bool JustSpawned = false;
     dActor_c *n = GetNextOfType(OBJ_ROY, NULL);
@@ -329,26 +329,11 @@ ext void CastleBlowers(bool isReady) {
             n = GetNextOfType(OBJ_ROY, n);
             continue;
         }
-        else
-        {
-            n = NULL;
-        }
+        else n = NULL;
     }
 
-    dActor_c *obj = GetNextOfType(AC_AUTOSCROOL_SWICH, NULL);
-    if (!obj)
-        return;
     if (JustSpawned) { JustSpawned = false; return; }
-    
-    mVec3_c newPos = obj->mPos;
-    int which = obj->mParam;
-    if (which == 0x0)
-        return;
-    JustSpawned = true;
-    dBlower_c::createFromParam(newPos.x, newPos.y, which);
-    obj->deleteRequest();
-    JustSpawned = true;
-    which = 0;
+    JustSpawned = (TryCreateOverlay(1, AC_AUTOSCROOL_SWICH) || TryCreateOverlay(2, DUMMY_DOOR_CHILD));
     return;
 }
 

@@ -23,8 +23,10 @@ ext volatile void FallPlatformPatch()
 
 ext volatile void FallPlatformPatch_new() {
     register void* base = &DAT_FALLPLATFORMSPEEDA;
+    register float clipBugFixQuestionmark = 2.f;
     asm("rlwinm r0, r0, 12, 0, 3");
     asm("srwi r0, r0, 28");
+    
     asm("cmpwi r0, 0\n beq+ zero");
     asm("cmpwi r0, 1\n beq+ one");
     asm("cmpwi r0, 2\n beq- two");
@@ -37,11 +39,11 @@ ext volatile void FallPlatformPatch_new() {
     base = &DAT_FALLPLATFORMSPEEDB;
     asm("lfs f0, 0x0010(base)\nstfs f0, 0x00F8(r3)\nstfs f2, 0x00F4(r3)\nstfs f2, 0x00FC(r3)\nlfs f0, 0x000C(base)\nstfs f0, 0x0114(r3)\n blr");
 
-    asm("two:\n lfs f1, 0x0028(base)\n fneg f1, f1\nlfs f0, 0x002C(base)\n stfs f2, 0xF4(r3)\n stfs f1, 0xF8(r3)\n stfs f2, 0xFC(r3)\nstfs f0, 0x114(r3)\n blr");
+    asm("two:\n lfs f1, 0x0028(base)\n fneg f1, f1\n fdivs f1, f1, clipBugFixQuestionmark\n lfs f0, 0x002C(base)\n stfs f2, 0xF4(r3)\n stfs f1, 0xF8(r3)\n stfs f2, 0xFC(r3)\nstfs f0, 0x114(r3)\n blr");
 
     asm("three:");
     base = &DAT_FALLPLATFORMSPEEDB;
-    asm("lfs f0, 0x0010(base)\nfneg f0, f0\nstfs f0, 0x00F8(r3)\nstfs f2, 0x00F4(r3)\nstfs f2, 0x00FC(r3)\nlfs f0, 0x000C(base)\nstfs f0, 0x0114(r3)\n blr");
+    asm("lfs f0, 0x0010(base)\n fneg f0, f0\n stfs f0, 0x00F8(r3)\nstfs f2, 0x00F4(r3)\nstfs f2, 0x00FC(r3)\nlfs f0, 0x000C(base)\nstfs f0, 0x0114(r3)\n blr");
 }
 
 ext void DeathMushHandler(dAcPy_c *toucher)
@@ -74,7 +76,6 @@ ext u32 GirderPatch(u32 buff, dActor_c* ac) {
     asm("addi r3, r3, 4");
     asm("mtlr r3");
     #endif
-    
     return 1;
 }
 

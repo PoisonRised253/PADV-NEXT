@@ -9,7 +9,7 @@ dEn_c* smitePlayer = NULL;
 
 dAcPy_c* Players[4] = {NULL};
 dGameKeyCore_c* Inputs[4] = {NULL};
-dBlower_c* Blowers[dBlower_c::MaxInstances] = {NULL};
+OverlayObjectBase* OverlayObjects[MAX_OVERLAYOBJECTS] = {NULL};
 const Modifier Mods[MODS_SIZE] = {
     //W1
     Modifier(41, 1, 0, POST, (void (*)(void *))NahFuckThat, 0, (void *)true, true, true),
@@ -63,8 +63,8 @@ void ExecMng::Reset(bool full) {
         if(wmSwitchBroken) {wmSwitchBroken->deleteRequest(); OSReport("Killed the Switch, hehe Killswitch\n");}
     }
     if(full) {
-        for(int i = 0; i < dBlower_c::MaxInstances; i++) 
-            {if(Blowers[i]) Blowers[i]->mDelayedDelete = true;}
+        for(int i = 0; i < MAX_OVERLAYOBJECTS; i++) 
+            {if(OverlayObjects[i]) OverlayObjects[i]->mDelayedDelete = true;}
         LivePatch(0x38600086, &LP_PARABOMBSPAWNID);
         *daBoo_c::getGlobalScaler() = 1.f;
         Spawners::daIcicle_c::SetGlobalScale(1);
@@ -120,11 +120,13 @@ void ExecMng::Execute(ExecPhase phase) {
     }
     if(!isInStage) return;
     for(int i = 0; i < MODS_SIZE; i++) {
-        //OSReport("Running Mods %i\n", i);
+        #ifdef DEBUG_EXEC_EXTREME
+        OSReport("Running Mods %i\n", i);
+        #endif
         Mods[i].TryRun(phase);
     }
-    for(int i = 0; i < dBlower_c::MaxInstances; i++) {
-        if(Blowers[i] && Blowers[i]->Verify()) Blowers[i]->Execute();
+    for(int i = 0; i < MAX_OVERLAYOBJECTS; i++) {
+        if(OverlayObjects[i] && OverlayObjects[i]->Verify()) OverlayObjects[i]->Execute();
     }
 
 #ifdef DEBUG_EXEC_EXTREME

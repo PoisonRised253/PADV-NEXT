@@ -49,6 +49,7 @@
 #include <game/bases/d_game_com.hpp>
 #include <game/bases/d_save_mng.hpp>
 #include <game/bases/d_mj2d_data.hpp>
+#include <game/bases/d_cyuukan.hpp>
 
 #include "PADV-NEXT/predefines.hpp"
 #include "PADV-NEXT/Utils.h"
@@ -76,6 +77,9 @@ extern const Modifier Mods[MODS_SIZE];
 
 // Infinite-Lives "True" Amount
 #define LIVES_AMOUNT 0x64
+
+//Amount of OverlayObjects
+#define MAX_OVERLAYOBJECTS 16
 
 // Tower-Modifier
 #define SPEEDCAP_TOWER 3.025f
