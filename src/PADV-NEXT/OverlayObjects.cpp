@@ -47,6 +47,8 @@ mVec4_c dDetectionField_c::genAndStoreRect()
         mPos.y + (mScale.y / 2));
     mRect = out;
 
+    mIsDirty = false;
+
     return out;
 }
 
@@ -98,6 +100,8 @@ mVec4_c dBlower_c::genAndStoreRect()
         mPos.x + (mScale.x / 2),
         mPos.y + ((mScale.y / 2) * 1.95f));
     mRect = out;
+
+    mIsDirty = false;
 
     return out;
 }
@@ -265,6 +269,7 @@ mVec4_c dPlayerModifier_c::genAndStoreRect()
     LDC.createEffect(getEffectName(), 0, &mVec3_c(out.x, out.w, 9000), &mAng3_c::Zero, &one);
     RUC.createEffect(getEffectName(), 0, &mVec3_c(out.z, out.y, 9000), &mAng3_c::Zero, &one);
     RDC.createEffect(getEffectName(), 0, &mVec3_c(out.z, out.w, 9000), &mAng3_c::Zero, &one);
+    mIsDirty = false;
     return out;
 }
 

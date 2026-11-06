@@ -106,6 +106,7 @@ ext void MarioCantBreatheUnderwater()
     dEn_c *water = (dEn_c *)GetNextOfType(AC_BG_WATER, false);
     if (water)
         water->mPos.y -= dps;
+    LivePatch(*(u32*)&sps, (void*)&dAcPy_c::sc_WaterSwimSpeed);
     return;
 }
 
@@ -113,7 +114,7 @@ ext void MarioCantBreatheUnderwater()
 // Makes the Player slower, based on how fast theyre trying to go. Letting go of all directions causes a sort of Slingshot effect.
 ext void SuperCold()
 {
-    const float precalcSpeed = SPEED_WATER_MOD / 60;
+    static const float precalcSpeed = (SPEED_WATER_MOD / 60) * 2;
     for (int i = 0; i < 4; i++)
     {
         if (!Players[i])
@@ -135,13 +136,11 @@ ext void SuperCold()
 // Make all Rolling Hills invisible
 ext void ShyRollers()
 {
+    if(!isInStage) return;
     dActor_c *n = (dActor_c *)GetNextOfType(AC_FLOOR_GYRATION, NULL);
-    for (int i = 0; i < 6; i++)
-    {
-        if(!n) continue;
-        if (!n->mVisible)
-            n = (dActor_c *)GetNextOfType(AC_FLOOR_GYRATION, n);
+    while(n) {
         n->mVisible = false;
+        n = (dActor_c *)GetNextOfType(AC_FLOOR_GYRATION, n);
     }
 
     return;
@@ -250,7 +249,7 @@ ext void WeGoWee()
     {
         if (!Players[i])
             continue;
-        u32 *state = GetMemberFromOffset(Players[i], 0x10D8);
+        u32 *state = (u32*)GetPlayerState(Players[i]);
         if (state && *state != 0x001BE000 && *state != 0x001B6000)
             LivePatch(0x50, state);
     }
@@ -345,26 +344,21 @@ ext void MarioSlide()
         if(!Players[i]) continue;
         if(!Players[i]->mPos.x) continue;
         *GetPlayerPowerState(Players[i]) = POWER_PENGUIN;
-        bool grounded = *checkGrounded(Players[i]);
-        if(CompareAgainstInput(WPAD_BUTTON_RIGHT, i)) goto stop;
-        if(CompareAgainstInput(WPAD_BUTTON_UP, i)) Players[i]->mDirection = DIR_LR_L;
+        int grounded = *checkGrounded(Players[i]);
+        if(CompareAgainstInput(WPAD_BUTTON_RIGHT, i)) continue;
+        if(CompareAgainstInput(WPAD_BUTTON_UP, i)  ) Players[i]->mDirection = DIR_LR_L;
         if(CompareAgainstInput(WPAD_BUTTON_DOWN, i)) Players[i]->mDirection = DIR_LR_R;
 
         
-        if(grounded) {
+        if((grounded & 0x0000000F) == 1) {
             if(Players[i]->mDirection == DIR_LR_R) {
-                Players[i]->mSpeed.x = clamp(Players[i]->mSpeed.x, 2.f, 128.f);
+                Players[i]->mSpeed.x = clamp(Players[i]->mSpeed.x, 12.f, 128.f);
             } else {
-                Players[i]->mSpeed.x = clamp(Players[i]->mSpeed.x, -2.f, -128.f);
+                Players[i]->mSpeed.x = clamp(Players[i]->mSpeed.x, -12.f, -128.f);
             }
             if(*Players[i]->mStateMgr.getStateID() != dAcPy_c::StateID_PenguinSlide)
                 Players[i]->changeState(dAcPy_c::StateID_PenguinSlide);
         }
-        continue;
-
-        stop:
-        Players[i]->mSpeed.x = 0;
-        Players[i]->mSpeedF = 0;
         continue; 
     }
 }
@@ -414,16 +408,16 @@ ext void RealisticBullet()
 //Under construction
 ext void Icey()
 {
+    if(!isInStage) return;
     daIceAshibaBase_c* block = (daIceAshibaBase_c*)GetNextOfType(daIceAshibaBase_c::actorID_Rail, NULL);
     Spawners::daIcicle_c* icicle = (Spawners::daIcicle_c*)GetNextOfType(Spawners::daIcicle_c::actorID, NULL);
-    if(!isInStage) return;
     Spawners::daIcicle_c::SetGlobalScale(2);
     
-    for(int i = 0; i < 4; i++) {
+    /*for(int i = 0; i < 4; i++) {
         if(!block) break;
         *block->getPathingGoalPosition() = mVec2_c(Players[0]->mPos.x, Players[0]->mPos.y);
         block = (daIceAshibaBase_c*)GetNextOfType(daIceAshibaBase_c::actorID_Rail, block);        
-    }
+    }*/
 
     for(int i = 0; i < 16; i++) {
         if(!icicle) break;
@@ -455,66 +449,77 @@ ext void FloatyTower()
 {
     for(int i = 0; i < 4; i++) {
         if(!Players[i]) continue;
+        Players[i]->mNoGravityTimer = 8;    
     }
 }
 
 // 3 - 4
 // NO
+//Upwards,Downwards,Leftwards,Rightwards
+//L,R | L,R | U,D | U,D
+//static const u16 disallowedTilesGreen[8] =  {0x60,0x61,0x80,0x81,0x62,0x72,0x64,0x74};
+//static const u16 disallowedTilesYellow[8] = {0x65,0x66,0x85,0x86,0x69,0x79,0x67,0x77};
+//static const u16 disallowedTilesRed[8] =    {0x6a,0x6b,0x8a,0x8b,0x6e,0x7e,0x6c,0x7c};
 ext void SlideyBlocks()
 {
     u16 x, y;
     dBg_c *gm = dBg_c::m_bg_p;
-    if (!gm)
+    if (!gm || !isInStage)
         return;
 
-    bool layers[3] = {gm->CheckExistLayer(-1), gm->CheckExistLayer(0), gm->CheckExistLayer(1)};
-    //Upwards,Downwards,Leftwards,Rightwards
-    //L,R | L,R | U,D | U,D
-    u16 disallowedTilesGreen[8] =  {0x60,0x61,0x80,0x81,0x62,0x72,0x64,0x74};
-    u16 disallowedTilesYellow[8] = {0x65,0x66,0x85,0x86,0x69,0x79,0x67,0x77};
-    u16 disallowedTilesRed[8] =    {0x6a,0x6b,0x8a,0x8b,0x6e,0x7e,0x6c,0x7c};
+    static const bool layers[3] = {gm->CheckExistLayer(0), gm->CheckExistLayer(1), gm->CheckExistLayer(2)};
+    static const u16 disallowedTiles[25] = {
+        0x60,0x61,0x80,0x81,0x62,0x72,0x64,0x74, //Green Pipe Ends
+        0x65,0x66,0x85,0x86,0x69,0x79,0x67,0x77, //Yellow Pipe Ends
+        0x6a,0x6b,0x8a,0x8b,0x6e,0x7e,0x6c,0x7c, //Red Pipe Ends
+        0x36                                     //Metal Block, Used as Irremovable/Immune Floor
+    };
 
     for (int i = 0; i < 4; i++)
     {
         if (!Players[i])
             continue;
-        if (!Players[i]->mPos.x)
-            return;
         x = ((u16)Players[i]->mPos.x) & 0xFFF0;
         y = ((u16)(-Players[i]->mPos.y)) & 0xFFF0;
         y -= 16;
-
-        static const int spawnThisTileForFuckSake = 0;
-        static const u16 PipeUpper = 0x006c;
-        static const u16 PipeLower = 0x007c;
 
         u16 *NearestTiles[4] = {
             gm->__GetUnitPointer(x - 16, y, 0, NULL, NULL),
             gm->__GetUnitPointer(x + 16, y, 0, NULL, NULL),
             gm->__GetUnitPointer(x, y - 16, 0, NULL, NULL),
-            gm->__GetUnitPointer(x, y + 16, 0, NULL, NULL)};
+            gm->__GetUnitPointer(x, y + 16, 0, NULL, NULL)
+        };
 
-        if (*NearestTiles[0] != 0x0 && *NearestTiles[0] != PipeUpper && *NearestTiles[0] != PipeLower)
+        bool allowed[3] = {true, true, true};
+        for(int i = 0; i < 25; i++) {
+            if(disallowedTiles[i] == *NearestTiles[0]) allowed[0] = false;
+            if(disallowedTiles[i] == *NearestTiles[1]) allowed[1] = false;
+            if(disallowedTiles[i] == *NearestTiles[3]) allowed[2] = false;
+        }
+
+        if(!allowed[0] && !allowed[1] && !allowed[2]) return;
+
+        if (*NearestTiles[0] != 0x0 && allowed[0])
         {
-            if(layers[0])gm->BgUnitChange(x - 16, y, -1, spawnThisTileForFuckSake);
-            if(layers[1])gm->BgUnitChange(x - 16, y, 0, spawnThisTileForFuckSake);
-            if(layers[2])gm->BgUnitChange(x - 16, y, 1, spawnThisTileForFuckSake);
+            if(layers[0])gm->BgUnitChange(x - 16, y, 0, 0);
+            if(layers[1])gm->BgUnitChange(x - 16, y, 1, 0);
+            if(layers[2])gm->BgUnitChange(x - 16, y, 2, 0);
             dActor_c::construct(SLIDE_BLOCK, 0, &MakeVec(Round(Players[i]->mPos.x - 16), Round(Players[i]->mPos.y), 0), &mAng3_c::Zero, 0);
         }
 
-        if (*NearestTiles[1] != 0x0 && *NearestTiles[1] != PipeUpper && *NearestTiles[1] != PipeLower)
+        if (*NearestTiles[1] != 0x0 && allowed[1])
         {
-            if(layers[0])gm->BgUnitChange(x + 16, y, -1, spawnThisTileForFuckSake);
-            if(layers[1])gm->BgUnitChange(x + 16, y, 0, spawnThisTileForFuckSake);
-            if(layers[2])gm->BgUnitChange(x + 16, y, 1, spawnThisTileForFuckSake);
+            if(layers[0])gm->BgUnitChange(x + 16, y, 0, 0);
+            if(layers[1])gm->BgUnitChange(x + 16, y, 1, 0);
+            if(layers[2])gm->BgUnitChange(x + 16, y, 2, 0);
             dActor_c::construct(SLIDE_BLOCK, 0, &MakeVec(Round(Players[i]->mPos.x + 16), Round(Players[i]->mPos.y), 0), &mAng3_c::Zero, 0);
         }
 
-        if (*NearestTiles[3] != 0x0)
+        if (*NearestTiles[3] != 0x0 && allowed[2])
         {
-            if(layers[0])gm->BgUnitChange(x, y + 16, -1, spawnThisTileForFuckSake);
-            if(layers[1])gm->BgUnitChange(x, y + 16, 0, spawnThisTileForFuckSake);
-            if(layers[2])gm->BgUnitChange(x, y + 16, 1, spawnThisTileForFuckSake);
+            if(layers[0])gm->BgUnitChange(x, y + 16, 0, 0);
+            if(layers[1])gm->BgUnitChange(x, y + 16, 1, 0);
+            if(layers[2])gm->BgUnitChange(x, y + 16, 2, 0);
             dActor_c::construct(SLIDE_BLOCK, 0, &MakeVec(Round(Players[i]->mPos.x), Round(Players[i]->mPos.y - 16), 0), &mAng3_c::Zero, 0);
         }
     }
@@ -578,13 +583,13 @@ ext void SnakeBlockFuckery()
 }
 
 ext void WaterStrangeness() {
-    static int Delay = 2;
+    static int Delay = 3;
     static int nextLayer = 0;
     static dBg_c *gm = dBg_c::m_bg_p;
     u8* mainVolume = (u8*)&DAT_WATERLAYERZERO;
     if(!isInStage) return;
     if(Delay > 0) {Delay--; return; }
-    else Delay = 2;
+    else Delay = 3;
     nextLayer++;
     if(nextLayer == 3) nextLayer = 0;
     *mainVolume = nextLayer;
@@ -600,9 +605,22 @@ ext void WaterStrangeness() {
             gm->__GetUnitPointer(x - 16, y, nextLayer, NULL, NULL),
             gm->__GetUnitPointer(x + 16, y, nextLayer, NULL, NULL),
             gm->__GetUnitPointer(x, y - 16, nextLayer, NULL, NULL),
-            gm->__GetUnitPointer(x, y + 16, nextLayer, NULL, NULL)};
+            gm->__GetUnitPointer(x, y + 16, nextLayer, NULL, NULL)
+        };
+        
+        if(nextLayer < 1 && *NearestTiles[0] && *NearestTiles[1] && *NearestTiles[2] && *NearestTiles[3]) Players[i]->mPos.y -= 1000;
+    }
+}
 
-        if(*NearestTiles[0] && *NearestTiles[1] && *NearestTiles[2] && *NearestTiles[3]) Players[i]->mPos.y -= 1000;
+ext void BomberFish() {
+    if(!isInStage) return;
+    dActor_c* fish = GetNextOfType(dCheep_c::actorID, NULL);
+    while(fish) {
+        u16 x = ((u16)fish->mPos.x) & 0xFFF0;
+        u16 y = ((u16)(-fish->mPos.y)) & 0xFFF0;
+        if(!(*dBg_c::m_bg_p->__GetUnitPointer(x,y,0,NULL,NULL)))
+            dActor_c::construct(133, 0x0, &fish->mPos, &fish->mAngle3D, fish->mLayer);
+        fish = GetNextOfType(dCheep_c::actorID, fish);
     }
 }
 

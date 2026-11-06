@@ -5,44 +5,79 @@
 
 extern "C" bool isPause();
 
-enum ExecPhase  { NONE = 0, PRE = 1, POST = 2, ALL = 3 };
-enum ActorLayer { NORMAL = 0, FOREGROUND = 1, BACKGROUND = 2};
+enum ExecPhase
+{
+    NONE = 0,
+    PRE = 1,
+    POST = 2,
+    ALL = 3
+};
+enum ActorLayer
+{
+    NORMAL = 0,
+    FOREGROUND = 1,
+    BACKGROUND = 2
+};
 
 // Level and World are 1-Indexed. Do not enter 0 unless it shouldnt ever work.
-struct Modifier {
-    typedef void (*ModFunc)(void*);
+struct Modifier
+{
+    typedef void (*ModFunc)(void *);
     typedef void (*ModFuncNoArg)();
-    public:
+
+public:
     const u8 Level;
     const u8 World;
     const u8 Area; // 0 for All
     const ExecPhase Phase;
     const ModFunc Mod;
     const ModFuncNoArg ModNoArg;
-    int Timer; //0 for None
-    void* arg;
+    int Timer; // 0 for None
+    void *arg;
     const bool useArg;
     const bool shouldRunWhilePaused;
 
-    void TryRun(ExecPhase phase) const {
-        dScStage_c* stage = dScStage_c::getInstance();
-        if(!stage || (!Mod && !ModNoArg)) return;
-        if(Phase == NONE || phase != Phase && Phase != ALL) return;
-        if(Level == 0 || World == 0) goto special;
-        else if(Level != stage->mCurrCourse + 1 || World != stage->mCurrWorld + 1) return;
-        if(Area != 0 && Area != stage->mCurrAreaNo + 1) return;
-        special:
-        if(!shouldRunWhilePaused && isPause()) return;
-        if(Timer == 0) {
-            if(!useArg) { this->ModNoArg(); }
-            else { this->Mod(arg); }
-        } else if(CallSpacer(Timer)){
-            if(!useArg) { this->ModNoArg(); }
-            else { this->Mod(arg); }
+    void TryRun(ExecPhase phase) const
+    {
+        dScStage_c *stage = dScStage_c::getInstance();
+        if (!stage || (!Mod && !ModNoArg))
+            return;
+        if (Phase == NONE || phase != Phase && Phase != ALL)
+            return;
+        if (Level == 0 || World == 0)
+            goto special;
+        else if (Level != stage->mCurrCourse + 1 || World != stage->mCurrWorld + 1)
+            return;
+        if (Area != 0 && Area != stage->mCurrAreaNo + 1)
+            return;
+    special:
+        if (!shouldRunWhilePaused && isPause())
+            return;
+        if (Timer == 0)
+        {
+            if (!useArg)
+            {
+                this->ModNoArg();
+            }
+            else
+            {
+                this->Mod(arg);
+            }
+        }
+        else if (CallSpacer(Timer))
+        {
+            if (!useArg)
+            {
+                this->ModNoArg();
+            }
+            else
+            {
+                this->Mod(arg);
+            }
         }
     }
 
-    Modifier(u8 level, u8 world, u8 area, ExecPhase phase, void (func)(void *), int timer, void *argument, bool UseArg, bool runWhilePause) : Level(level), World(world), Area(area), Phase(phase), Mod((ModFunc)func), ModNoArg((ModFuncNoArg)func), useArg(UseArg), shouldRunWhilePaused(runWhilePause)
+    Modifier(u8 level, u8 world, u8 area, ExecPhase phase, void(func)(void *), int timer, void *argument, bool UseArg, bool runWhilePause) : Level(level), World(world), Area(area), Phase(phase), Mod((ModFunc)func), ModNoArg((ModFuncNoArg)func), useArg(UseArg), shouldRunWhilePaused(runWhilePause)
     {
         Timer = timer;
         arg = argument;
@@ -91,14 +126,16 @@ typedef struct mVec4_c
         return mVec4_c(this->x / other, this->y / other, this->z / other, this->w / other);
     }
 
-    mVec4_c() {
+    mVec4_c()
+    {
         x = 0;
         y = 0;
         z = 0;
         w = 0;
     }
 
-    mVec4_c(float X, float Y, float Z, float W) {
+    mVec4_c(float X, float Y, float Z, float W)
+    {
         x = X;
         y = Y;
         z = Z;
@@ -163,12 +200,14 @@ typedef struct mVecU16_c
         return mVecU16_c(this->x / other, this->y / other);
     }
 
-    mVecU16_c() {
+    mVecU16_c()
+    {
         x = 0;
         y = 0;
     }
 
-    mVecU16_c(u16 X, u16 Y) {
+    mVecU16_c(u16 X, u16 Y)
+    {
         x = X;
         y = Y;
     }
@@ -178,10 +217,72 @@ typedef struct mVecU16_c
         this->x = NULL;
         this->y = NULL;
     }
-
 };
 
-enum Powers  
+typedef struct mVecInt_c 
+{
+    u32 x;
+    u32 y;
+    u32 z;
+
+    bool operator==(const mVecInt_c &other) const
+    {
+        return (this->x == other.x && this->y == other.y, this->z == other.z);
+    }
+
+    mVecInt_c operator+=(const mVecInt_c &other)
+    {
+        return mVecInt_c(this->x + other.x, this->y + other.y, this->z + other.z);
+    }
+
+    mVecInt_c operator-=(const mVecInt_c &other)
+    {
+        return mVecInt_c(this->x - other.x, this->y - other.y, this->z - other.z);
+    }
+
+    mVecInt_c operator*=(const mVecInt_c &other)
+    {
+        return mVecInt_c(this->x * other.x, this->y * other.y, this->z * other.z);
+    }
+
+    mVecInt_c operator*=(const u32 other)
+    {
+        return mVecInt_c(this->x * other, this->y * other, this->z * other);
+    }
+
+    mVecInt_c operator/=(const mVecInt_c &other)
+    {
+        return mVecInt_c(this->x / other.x, this->y / other.y, this->z / other.z);
+    }
+
+    mVecInt_c operator/=(const u32 other)
+    {
+        return mVecInt_c(this->x / other, this->y / other, this->z + other);
+    }
+
+    mVecInt_c()
+    {
+        x = 0;
+        y = 0;
+        z = 0;
+    }
+
+    mVecInt_c(u32 X, u32 Y, u32 Z)
+    {
+        x = X;
+        y = Y;
+        z = Z;
+    }
+
+    ~mVecInt_c()
+    {
+        this->x = NULL;
+        this->y = NULL;
+        this->z = NULL;
+    }
+};
+
+enum Powers
 {
     POWER_SMALL = 0,
     POWER_BIG = 1,
@@ -195,7 +296,7 @@ enum Powers
 // DEATHMUSH is not actually in this game, but im going to change that.
 // If you spawn DEATHMUSH in the vanilla game, you get a normal-mush-scaled Minimush, which acts like a minimush.
 // Time for me to find what function occours when you get a powerup.
-enum ItemVariants  
+enum ItemVariants
 {
     ITEM_MUSHROOM = 0x00,
     ITEM_STAR = 0x01,
@@ -208,7 +309,7 @@ enum ItemVariants
     ITEM_DEATHMUSH = 0xF9
 };
 
-enum ExitMode  
+enum ExitMode
 {
     EXIT_SUCCESS = 0,
     EXIT_FAIL = 1,
@@ -216,7 +317,7 @@ enum ExitMode
     EXIT_DEFAULT = 3
 };
 
-enum GameMode  
+enum GameMode
 {
     GAME_NORMAL = 0,
     GAME_LUIGI_GUIDE = 1,
@@ -225,7 +326,7 @@ enum GameMode
     GAME_MOVIE = 4 // 1-41's Hint Movies
 };
 
-enum Minigame  
+enum Minigame
 {
     MINIGAME_NONE = 0,
     MINIGAME_STAR_HOUSE = 1,
@@ -234,7 +335,7 @@ enum Minigame
 
 // If i ever need to overwrite a class, here's the ones that do nothing
 // dDummyDoorParent_c and dDummyDoorChild_c are not included, as they execute... just ... unknown things.. They dont even need eachother btw
-enum Dummy  
+enum Dummy
 {
     SLOW_QUICK_TAG_C = (int)SLOW_QUICK_TAG,
     KAWANAGARE_C = (int)KAWANAGARE,
@@ -245,9 +346,9 @@ enum Dummy
     EN_BLUR_C = (int)EN_BLUR
 };
 
-enum Broken 
+enum Broken
 {
     AC_LIFT_OBJBG_HMOVE_BIG_C = (int)AC_LIFT_OBJBG_HMOVE_BIG
 };
-
+ 
 #endif

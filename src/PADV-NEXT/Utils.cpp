@@ -299,8 +299,8 @@ ext void DumpPlayer(int which)
             gm->__GetUnitPointer(x, y - 16, 0, NULL, NULL),
             gm->__GetUnitPointer(x, y + 16, 0, NULL, NULL)};
 
-    OSReport("\n--------------------------------------\n---Player %i Dump:---\n---Pointer: %p---\n---Power: %p---\n---IsDemo: %i---\n---IsPause: %i---\n---IsGrounded: %i---\n---State: %p---\n---Level: %i---\n---World: %i---\n---Area: %i---\n------NearestTiles:------\n---Up: %p---\n---Down: %p---\n---Left: %p---\n---Right: %p---\n--------------------------------------\n\n", which, Players[which], *GetPlayerPowerState(Players[which]), *isDemo(Players[which]), isPause(), (bool)*checkGrounded(Players[which]), *checkAllowedMoves(Players[which]), dScStage_c::m_instance->mCurrCourse, dScStage_c::m_instance->mCurrWorld, dScStage_c::m_instance->mCurrAreaNo, *NearestTiles[2], *NearestTiles[3], *NearestTiles[0], *NearestTiles[1]);
-    dActor_c::construct(EN_ITEM, 0x000000F9, &mVec3_c(Players[which]->mPos.x, Players[which]->mPos.y + 128, 0), &mAng3_c::Zero, 0);
+    OSReport("\n--------------------------------------\n------Player %i Dump:------\n---Pointer: %p---\n---X: %f---\n---Y: %f---\n---Power: %p---\n---IsDemo: %i---\n---IsPause: %i---\n---IsGrounded: %i---\n---State: %p---\n---Level: %i---\n---World: %i---\n---Area: %i---\n------NearestTiles:------\n---Up: %p---\n---Down: %p---\n---Left: %p---\n---Right: %p---\n--------------------------------------\n\n", which, Players[which], Players[which]->mPos.x, Players[which]->mPos.y, *GetPlayerPowerState(Players[which]), *isDemo(Players[which]), isPause(), (bool)*checkGrounded(Players[which]), *checkAllowedMoves(Players[which]), dScStage_c::m_instance->mCurrCourse, dScStage_c::m_instance->mCurrWorld, dScStage_c::m_instance->mCurrAreaNo, *NearestTiles[2], *NearestTiles[3], *NearestTiles[0], *NearestTiles[1]);
+    //dActor_c::construct(EN_ITEM, 0x000000F9, &mVec3_c(Players[which]->mPos.x, Players[which]->mPos.y + 128, 0), &mAng3_c::Zero, 0);
     return;
 }
 #endif

@@ -5,7 +5,7 @@
 #endif
 
 #define ext extern "C"
-#define MODS_SIZE 27 //Mods Array Size
+#define MODS_SIZE 28 //Mods Array Size
 
 #define INSTR_BLR 0x4e800020
 #define INSTR_NOP 0x60000000
@@ -49,17 +49,20 @@
 #include <game/bases/d_game_com.hpp>
 #include <game/bases/d_save_mng.hpp>
 #include <game/bases/d_mj2d_data.hpp>
+#include "game/bases/d_res_mng.hpp"
 #include <game/bases/d_cyuukan.hpp>
 
 #include "PADV-NEXT/predefines.hpp"
 #include "PADV-NEXT/Utils.h"
 #include "PADV-NEXT/structs.hpp"
+#include "PADV-NEXT/PoisonMap/PoisonMap.h"
 #include "PADV-NEXT/OverlayObjects.h"
 #include "PADV-NEXT/ExecMng.h"
 #include "PADV-NEXT/math.hpp"
 #include "PADV-NEXT/Modifiers.h"
 #include "PADV-NEXT/daEnemies_c.h"
 
+extern "C" int atoi(const char* str);
 extern int FrameTimer;
 extern ExecPhase currentPhase;
 extern bool isInitialized;

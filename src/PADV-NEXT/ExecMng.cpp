@@ -27,7 +27,7 @@ const Modifier Mods[MODS_SIZE] = {
     Modifier(3, 2, 0, PRE, (void (*)(void *))LiterallyBulletHell, 0, (void *)NULL, false, false),
     Modifier(22, 2, 0, PRE, (void (*)(void *))WeGoWee, 0, (void *)NULL, false, false), 
     Modifier(4, 2, 0, POST, (void (*)(void *))SandyPain, 0, (void *)NULL, false, false),
-    Modifier(5, 2, 0, POST, (void (*)(void *))PokeyLanParty, 0, (void *)NULL, false, false),
+    Modifier(5, 2, 0, POST, (void (*)(void *))PokeyLanParty, 6, (void *)NULL, false, false),
     Modifier(6, 2, 0, PRE, (void (*)(void *))FuckTwoSix, 0, (void *)NULL, false, true),
     Modifier(24, 2, 0, PRE, (void (*)(void *))FixRoys, 0, (void *)NULL, false, false), //Fixes Roy's endless loop by avoiding L:24,W:2,A:0
     Modifier(24, 2, 0, POST, (void (*)(void *))CastleBlowers, 6, (void *)(bool)dInfo_c::m_instance->m_startGameInfo.mArea, true, false), //Actual OverlayObject implementation, uses L:24 as a fake escape from Roy's A:0, also to seperate exec
@@ -36,16 +36,20 @@ const Modifier Mods[MODS_SIZE] = {
     Modifier(2, 3, 0, PRE, (void (*)(void *))RealisticBullet, 0, (void *)NULL, false, true),
     Modifier(3, 3, 0, PRE, (void (*)(void *))Icey, 0, (void *)NULL, false, true),
     Modifier(21, 3, 0, POST, (void (*)(void *))BetterGhosts, 0, (void *)NULL, false, true),
-    Modifier(22, 3, 0, PRE, (void (*)(void *))FloatyTower, 0, (void *)NULL, false, false),
+    Modifier(22, 3, 0, PRE, (void (*)(void *))FloatyTower, 15, (void *)NULL, false, false),
     Modifier(4, 3, 0, PRE, (void (*)(void *))SlideyBlocks, 0, (void *)NULL, false, false),
     Modifier(5, 3, 0, PRE, (void (*)(void *))WierdLineBlock, 15, (void *)NULL, false, false),
     Modifier(24, 3, 0, PRE, (void (*)(void *))SnakeBlockFuckery, 0, (void *)NULL, false, true),
     //W4
-    Modifier(1,4,0, PRE, (void (*)(void *))WaterStrangeness, 15, (void*)NULL, false, false)
+    Modifier(1,4,0, PRE, (void (*)(void *))WaterStrangeness, 15, (void*)NULL, false, false),
+    Modifier(2,4,0, PRE, (void (*)(void *))BomberFish, 60, (void*)NULL, false, false)
 };
 
 void ExecMng::Initialize() {
     Spawners::daIcicle_c::SetGlobalScale(1); //Run this to cache SMC's to avoid false base-data
+    #ifdef PADV_MAPCORE
+        if(!PMAP) new PoisonMap();
+    #endif
     isInitialized = true;
     OSReport("PADV: %s\n", Signature);
     OSReport("PADV Initialization Completed\n");
@@ -72,7 +76,7 @@ void ExecMng::Reset(bool full) {
     }
 
     dMj2dGame_c* header = dSaveMng_c::m_instance->getSaveGame(dSaveMng_c::m_instance->getLastSelectedFile());
-    if(header && full) {
+    if(header) {
         header->setStockItem(0, 99);
         header->setStockItem(1, 99);
         header->setStockItem(2, 99);
@@ -118,7 +122,18 @@ void ExecMng::Execute(ExecPhase phase) {
             OSReport("EndFrame\n");
         #endif
     }
-    if(!isInStage) return;
+
+    if(!isInStage) {
+        #ifdef PADV_MAPCORE
+        PoisonMap* map = PMAP;
+        
+        if(map) {
+            map->Execute(phase);
+        }
+        #endif
+        return;
+    }
+
     for(int i = 0; i < MODS_SIZE; i++) {
         #ifdef DEBUG_EXEC_EXTREME
         OSReport("Running Mods %i\n", i);
@@ -145,6 +160,10 @@ kmBranchDefCpp(0x800e4874, NULL, void, void) { ExecMng::Execute(POST);}
 kmBranchDefCpp(0x8015d82c, NULL, void, void) { ExecMng::Initialize(); }
 kmBranchDefCpp(0x800bbbb4, NULL, void, void) { ExecMng::Reset(true);  }
 kmBranchDefCpp(0x800e2030, NULL, void, void) { ExecMng::Reset(false); }
+
+#ifdef PADV_PMAP_ENABLE
+kmBranchDefCpp(0x800F36B0, NULL, void, int w, int sw) { PoisonMapData::Initialize(w, sw); }
+#endif
 
 //Static Patch section
 #ifdef DEBUG_PADV

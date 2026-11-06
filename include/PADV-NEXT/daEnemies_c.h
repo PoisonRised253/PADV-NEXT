@@ -591,10 +591,12 @@ class daSnakeBlock_c : public dEn_c {
 
 //Come back later
 class daHuckit_c : public dActor_c {
+    public:
     static const Actors actorID = EN_KANIBO;
 };
 
 class dCheep_c : public dActor_c {
+    public:
     static const Actors actorID = EN_TOBIPUKU;
     inline u32* getUnkTimer()               const {return          GetMemberFromOffset((void*)this, 0xE60);}
     inline u32* getShouldAnimate()          const {return          GetMemberFromOffset((void*)this, 0xEA0);}
@@ -607,6 +609,7 @@ class dCheep_c : public dActor_c {
 
 //Next up
 class dPorcuPuffer_c : public dEn_c {
+    public:
     static const Actors actorID = EN_IGAPUKU;
     inline mVec2_c* getVelocityOverride()  const {return (mVec2_c*)GetMemberFromOffset((void*)this, 0x114); } //Applies after jumping, if done wrong will cause it to fly offscreen
     inline mVec2_c* getHitboxScale()       const {return (mVec2_c*)GetMemberFromOffset((void*)this, 0x16C); } //Not per-frame set! Lets gooo
