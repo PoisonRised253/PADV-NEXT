@@ -403,10 +403,6 @@ ext u32 WrapNumber(u32 value, u32 min, u32 max)
     return value;
 }
 
-ext static const u32 CreateLoadImmediate(u8 reg, u16 val) {
-    return (0x38000000 | (reg << 21) | val);
-}
-
 ext void AntiBubble()
 {
     for (int i = 0; i < 4; i++)

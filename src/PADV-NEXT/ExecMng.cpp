@@ -42,7 +42,8 @@ const Modifier Mods[MODS_SIZE] = {
     Modifier(24, 3, 0, PRE, (void (*)(void *))SnakeBlockFuckery, 0, (void *)NULL, false, true),
     //W4
     Modifier(1,4,0, PRE, (void (*)(void *))WaterStrangeness, 15, (void*)NULL, false, false),
-    Modifier(2,4,0, PRE, (void (*)(void *))BomberFish, 60, (void*)NULL, false, false)
+    Modifier(2,4,0, PRE, (void (*)(void *))BomberFish, 60, (void*)NULL, false, false),
+    Modifier(3,4,0, PRE, (void (*)(void *))HuckMeSomeBalls, 60, (void*)NULL, false, false)
 };
 
 void ExecMng::Initialize() {
@@ -67,11 +68,12 @@ void ExecMng::Reset(bool full) {
         if(wmSwitchBroken) {wmSwitchBroken->deleteRequest(); OSReport("Killed the Switch, hehe Killswitch\n");}
     }
     if(full) {
-        for(int i = 0; i < MAX_OVERLAYOBJECTS; i++) 
+        for(int i = 0; i < MAX_OVERLAYOBJECTS; i++)
             {if(OverlayObjects[i]) OverlayObjects[i]->mDelayedDelete = true;}
         LivePatch(0x38600086, &LP_PARABOMBSPAWNID);
         *daBoo_c::getGlobalScaler() = 1.f;
         Spawners::daIcicle_c::SetGlobalScale(1);
+        daHuckit_c::SetSpawnID(0x11F); //Huckit Rock
         EnteredStage = false;
     }
 

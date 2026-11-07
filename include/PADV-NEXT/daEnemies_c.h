@@ -7,9 +7,9 @@ extern void *DAT_ICICLESIZE;
 extern void *DAT_ICICLEGROW; 
 extern void *DAT_FOOTLENGTH;
 extern void *LP_CHEEPSPAWNID;
+extern void *DAT_HUCKITSPAWNID;
 
 extern volatile void LivePatch(u32 newInstr, void* ptr);
-extern "C" static const u32 CreateLoadImmediate(u8, u16);
 
 // Collection of Enemies ive looked at, and explored
 // I dont know how to make headers actually align to ingame Memory, so im using methods instead, please forgive my sins (sizeof() appears to be wrong lol)
@@ -593,6 +593,10 @@ class daSnakeBlock_c : public dEn_c {
 class daHuckit_c : public dActor_c {
     public:
     static const Actors actorID = EN_KANIBO;
+
+    static void SetSpawnID(u16 newID) {
+        LivePatch(CreateLoadImmediate(3, newID), &DAT_HUCKITSPAWNID);
+    }
 };
 
 class dCheep_c : public dActor_c {

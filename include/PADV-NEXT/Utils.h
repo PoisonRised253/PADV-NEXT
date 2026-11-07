@@ -28,7 +28,6 @@ ext void HandleHotkeys();
 ext bool SetActorCollisionLayer(dActor_c*, char);
 ext void SetActorCollisionLayer_internal(dActor_c* actor, char layer);
 ext void SetPlayerBecomeJesus(register dAcPy_c* actor, register bool state);
-ext static const u32 CreateLoadImmediate(u8, u16);
 ext void AntiBubble();
 ext bool TryCreateOverlay(int OverlayObjectType, Actors OverlayedActorID);
 

@@ -8,6 +8,10 @@ extern "C" bool CallSpacer(int callsPerSecond);
 
 extern "C" u32 *GetMemberFromOffset(void *object, u32 offset);
 
+extern "C" static const u32 CreateLoadImmediate(u8 reg, u16 val) {
+    return (0x38000000 | (reg << 21) | val);
+}
+
 enum Actors {
     PROFILE_NULL = (unsigned int)-1,
     BOOT = 0,

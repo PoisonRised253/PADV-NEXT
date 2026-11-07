@@ -37,4 +37,5 @@ ext void SnakeBlockFuckery();
 //W4
 ext void WaterStrangeness();
 ext void BomberFish();
+ext void HuckMeSomeBalls();
 #endif

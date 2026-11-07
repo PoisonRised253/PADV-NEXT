@@ -5,7 +5,7 @@
 #endif
 
 #define ext extern "C"
-#define MODS_SIZE 28 //Mods Array Size
+#define MODS_SIZE 29 //Mods Array Size
 
 #define INSTR_BLR 0x4e800020
 #define INSTR_NOP 0x60000000

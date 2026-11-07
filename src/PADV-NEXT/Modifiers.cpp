@@ -449,7 +449,7 @@ ext void FloatyTower()
 {
     for(int i = 0; i < 4; i++) {
         if(!Players[i]) continue;
-        Players[i]->mNoGravityTimer = 8;    
+        Players[i]->mNoGravityTimer = 8;
     }
 }
 
@@ -620,8 +620,19 @@ ext void BomberFish() {
         u16 y = ((u16)(-fish->mPos.y)) & 0xFFF0;
         if(!(*dBg_c::m_bg_p->__GetUnitPointer(x,y,0,NULL,NULL)))
             dActor_c::construct(133, 0x0, &fish->mPos, &fish->mAngle3D, fish->mLayer);
+
         fish = GetNextOfType(dCheep_c::actorID, fish);
     }
+}
+
+ext void HuckMeSomeBalls() {
+    if(isInStage) daHuckit_c::SetSpawnID(daLemmyBall_c::actorID);
+    daLemmyBall_c* ball = (daLemmyBall_c*)GetNextOfType(daLemmyBall_c::actorID, NULL);
+    while(ball) {
+        ball->setHitbox(7);
+        ball = (daLemmyBall_c*)GetNextOfType(daLemmyBall_c::actorID, ball);
+    }
+    return;
 }
 
 // Unused stuff:
