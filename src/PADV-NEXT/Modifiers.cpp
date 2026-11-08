@@ -35,7 +35,7 @@ ext void SpinEternally()
             continue;
         if (CompareAgainstInput(WPAD_BUTTON_LEFT, i)) continue;
 
-        if(*checkGrounded(Players[i]))
+        if((*checkGrounded(Players[i]) & 0x0000000F) == 1)
             Players[i]->changeState(dAcPy_c::StateID_SpinJump);
     }
 
@@ -249,7 +249,7 @@ ext void WeGoWee()
     {
         if (!Players[i])
             continue;
-        u32 *state = (u32*)GetPlayerState(Players[i]);
+        u32 *state = (u32*)checkAllowedMoves(Players[i]);
         if (state && *state != 0x001BE000 && *state != 0x001B6000)
             LivePatch(0x50, state);
     }
@@ -634,6 +634,8 @@ ext void HuckMeSomeBalls() {
     }
     return;
 }
+
+
 
 // Unused stuff:
 #ifdef DEBUG_UNUSED

@@ -7,5 +7,6 @@ class ExecMng {
     static void Initialize();
     static void Reset(bool);
     static void Execute(ExecPhase);
+    static void OnPhysicsUpdate(dAcPy_c* plr);
 };
 #endif

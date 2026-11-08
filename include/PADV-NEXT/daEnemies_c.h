@@ -421,12 +421,12 @@ namespace Spawners
 
         static void SetGlobalScale(float multiplier) {
             static const float GrowStep = *getGrowStep();
-            static const float MaxSize = *getMaxSize();
+            static const float MaxSize  =  *getMaxSize();
 
             float newGrowStep = GrowStep * multiplier;
             float newMaxSize = MaxSize * multiplier;
             
-            LivePatch(*(u32*)&newMaxSize, (void*)getMaxSize());
+            LivePatch(*(u32*)&newMaxSize,  (void*)getMaxSize());
             LivePatch(*(u32*)&newGrowStep, (void*)getGrowStep());
             return;
         }
@@ -450,8 +450,7 @@ namespace Spawners
     class dCheepSpawner_c : public dActor_c {
         static const Actors actorID = AC_WAKI_TOBIPUKU;
         static void ChangeSpawnID(u16 newSpawnID) {
-            u32 instr = CreateLoadImmediate(3, newSpawnID);
-            LivePatch(instr, LP_CHEEPSPAWNID);
+            LivePatch(CreateLoadImmediate(3, newSpawnID), LP_CHEEPSPAWNID);
         }
     };
 }
@@ -486,7 +485,7 @@ public:
     // This is a static const somewhere around rtoc + 0x77??, No idea what it does :shrug:
     static const float *getSomething() { return(float *) 0x8042BC48; }
 
-    //This is nonfunctional due to lack of understanding the mechanics on which the visuals scale
+    //This is nonfunctional due to lack of understanding the mechanics on which the visuals scale operate
     void ChangeSize(float modifier) {
         int settingsSizeBit = (this->mParam & 0x00F00000) >> 20;
         float visScale;

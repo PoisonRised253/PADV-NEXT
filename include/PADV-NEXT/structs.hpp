@@ -4,6 +4,9 @@
 #include "PADV-NEXT/Utils.h"
 
 extern "C" bool isPause();
+extern dAcPy_c* Players[4];
+extern int FindPointerInArray(void *arr[], int size, void *ptr);
+extern "C" void SetConveyerSpeed(dAcPy_c*, float);
 
 enum ExecPhase
 {
@@ -12,6 +15,7 @@ enum ExecPhase
     POST = 2,
     ALL = 3
 };
+
 enum ActorLayer
 {
     NORMAL = 0,
@@ -280,6 +284,46 @@ typedef struct mVecInt_c
         this->y = NULL;
         this->z = NULL;
     }
+};
+
+struct PhysicsOverride {
+    public:
+    dAcPy_c* mOwner;
+    mVec2_c mBgScale;
+    mVec2_c mBgOffset;
+    float mBgConveyerbeltness;
+    bool State[4];
+    void** arr;
+
+    void Apply() {
+        if(mOwner < (dAcPy_c*)0x80000000) return;
+        if(State[4]) SetConveyerSpeed(mOwner, mBgConveyerbeltness);
+        //The Others arent Implemented yet lol
+        if(!State[0]) delete this;
+    }
+
+    PhysicsOverride(dAcPy_c* owner, mVec2_c BgScale, mVec2_c BgOffset, float conveyerness, bool keepAlive, void** array) {
+        mOwner = owner;
+        mBgScale = BgScale;
+        mBgOffset = BgOffset;
+        mBgConveyerbeltness = conveyerness;
+        arr = array;
+        State[0] = keepAlive; //Keep Alive Until Level Reload.
+        State[1] = BgScale.x || BgScale.y;
+        State[2] = BgOffset.x || BgOffset.y;
+        State[3] = conveyerness;
+        
+        int id = FindPointerInArray((void**)Players, 4, owner);
+        if(id == 0xFFFF) OSReport("Owner not found, memory leak achieved\n");
+        else {
+            array[id] = this;
+        }
+    }
+
+    ~PhysicsOverride() {
+        int id = FindPointerInArray(arr, 4, this);
+        if(id != 0xFFFF) arr[id] = NULL;
+    };
 };
 
 enum Powers

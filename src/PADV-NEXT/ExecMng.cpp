@@ -43,14 +43,13 @@ const Modifier Mods[MODS_SIZE] = {
     //W4
     Modifier(1,4,0, PRE, (void (*)(void *))WaterStrangeness, 15, (void*)NULL, false, false),
     Modifier(2,4,0, PRE, (void (*)(void *))BomberFish, 60, (void*)NULL, false, false),
-    Modifier(3,4,0, PRE, (void (*)(void *))HuckMeSomeBalls, 60, (void*)NULL, false, false)
+    Modifier(3,4,0, PRE, (void (*)(void *))HuckMeSomeBalls, 15, (void*)NULL, false, false)
 };
+
+PhysicsOverride* PhysicsOverrides[4] = {NULL};
 
 void ExecMng::Initialize() {
     Spawners::daIcicle_c::SetGlobalScale(1); //Run this to cache SMC's to avoid false base-data
-    #ifdef PADV_MAPCORE
-        if(!PMAP) new PoisonMap();
-    #endif
     isInitialized = true;
     OSReport("PADV: %s\n", Signature);
     OSReport("PADV Initialization Completed\n");
@@ -69,7 +68,7 @@ void ExecMng::Reset(bool full) {
     }
     if(full) {
         for(int i = 0; i < MAX_OVERLAYOBJECTS; i++)
-            {if(OverlayObjects[i]) OverlayObjects[i]->mDelayedDelete = true;}
+            { if(OverlayObjects[i]) OverlayObjects[i]->mDelayedDelete = true; }
         LivePatch(0x38600086, &LP_PARABOMBSPAWNID);
         *daBoo_c::getGlobalScaler() = 1.f;
         Spawners::daIcicle_c::SetGlobalScale(1);
@@ -155,9 +154,20 @@ void ExecMng::Execute(ExecPhase phase) {
     return;
 }
 
+void ExecMng::OnPhysicsUpdate(dAcPy_c* plr) {
+    asm("mr r3, r31");
+    for(int i = 0; i < 4; i++) {
+        if(PhysicsOverrides[i]) {
+            PhysicsOverrides[i]->Apply();
+        }
+    }
+    return;
+}
+
 //Execution Hooks
 kmBranchDefCpp(0x800e4814, NULL, void, void) { ExecMng::Execute(PRE); }
 kmBranchDefCpp(0x800e4874, NULL, void, void) { ExecMng::Execute(POST);}
+kmBranchDefCpp(0x800552b0, NULL, void, void) { ExecMng::OnPhysicsUpdate(NULL); }
 
 kmBranchDefCpp(0x8015d82c, NULL, void, void) { ExecMng::Initialize(); }
 kmBranchDefCpp(0x800bbbb4, NULL, void, void) { ExecMng::Reset(true);  }
@@ -174,8 +184,8 @@ kmWrite32(0x800F1960, INSTR_BLR); // Allow Debug (BLRs DeleteDebugMaterial)
 
 kmWrite32(0x800e3ab8, 0x3c0001f4); // FuckTimers! | NO-OPs Timer Execution
 kmWrite32(0x801591f0, 0x4e800020); // Disable1UpEffect! | Disables the 1Up Effect
-kmWrite32(0x8010CDE0,  INSTR_BLR); // No Scores | NO-OPs ScoreManager Execution
-kmWrite32(0x800b1910,  INSTR_BLR); // No Fukidashi | NO-OPs the Fuki Manager, to remove the pesky popups
+kmWrite32(0x8010CDE0,  INSTR_BLR); // No Scores | BLRs ScoreManager Execution
+kmWrite32(0x800b1910,  INSTR_BLR); // No Fukidashi | BLRs the Fuki Manager, to remove the pesky popups
 kmWrite32(0x808efa70,  INSTR_BLR); // WMSWITCH is breaking the game, so this is a sort of tape-on fix, so i can keep developing. Something about res alloc. Idk and idc
 kmWrite32(0x80907364,  INSTR_NOP); // Part 2 of ^^^ | Stops switch activation crash
 

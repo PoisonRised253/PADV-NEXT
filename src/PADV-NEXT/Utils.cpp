@@ -403,6 +403,9 @@ ext u32 WrapNumber(u32 value, u32 min, u32 max)
     return value;
 }
 
+//This was made, so that opting out is not an option.
+//When i grew up on this game, my sister would often Nope Out of playing some specific levels
+//So in return, i made this. Bubbling is now basically a teleport, not an exit.
 ext void AntiBubble()
 {
     for (int i = 0; i < 4; i++)
@@ -417,12 +420,10 @@ ext void AntiBubble()
         if (i > 0 && p != NULL)
         {
             Players[i]->mPos = VecAdd(p->mPos, MakeVec(0, 8.f, 0));
-            Players[i]->mScale = MakeVec(0, 0, 0);
         }
         else if (p2)
         {
             Players[i]->mPos = VecAdd(p2->mPos, MakeVec(0, 8.f, 0));
-            Players[i]->mScale = MakeVec(0, 0, 0);
         }
         dEn_c *bubble = GetNextOfType(EN_HATENA_BALLOON, NULL);
         if (!bubble)
@@ -451,6 +452,12 @@ ext bool TryCreateOverlay(int OverlayObjectType, Actors OverlayedActorID) {
 
     obj->deleteRequest();
     return true;
+}
+
+//Vanilla Conveyer Speeds: 0,5 for Slow, 1 for fast, Negate for leftwards
+ext void SetConveyerSpeed(dAcPy_c* player, float newSpeed) {
+    float* convSpeed = (float*)GetMemberFromOffset(player, 0x10C4);
+    if(convSpeed) *convSpeed = newSpeed;
 }
 
 #ifdef DEBUG_BALLS

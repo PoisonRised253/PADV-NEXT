@@ -30,6 +30,7 @@ ext void SetActorCollisionLayer_internal(dActor_c* actor, char layer);
 ext void SetPlayerBecomeJesus(register dAcPy_c* actor, register bool state);
 ext void AntiBubble();
 ext bool TryCreateOverlay(int OverlayObjectType, Actors OverlayedActorID);
+ext void SetConveyerSpeed(dAcPy_c* player, float newSpeed);
 
 int FindNextFreeArrayEntry(void* Arr[], int);
 int FindPointerInArray(void* Arr[], int, void*);

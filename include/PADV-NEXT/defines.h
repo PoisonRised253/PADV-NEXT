@@ -75,6 +75,7 @@ extern const char* Signature;
 extern dAcPy_c* Players[4];
 extern dGameKeyCore_c* Inputs[4]; 
 extern const Modifier Mods[MODS_SIZE];
+extern PhysicsOverride* PhysicsOverrides[4];
 
 //Const Storage, an attempt to make the compiler generate li since these dont have a RAM storage location
 
