@@ -71,6 +71,7 @@ dBlower_c::dBlower_c(mVec3_c pos, mVec2_c rect, mVec2_c intensity, u16 Overlayed
     mVec3_c effectScale = mVec3_c(rect.x + (effectScaleFix * rect.x), rect.y, 1);
     mVec3_c effectPos = mVec3_c(mPos.x, mPos.y - (mScale.y / 2), -6500.f);
     mEff.createEffect(getEffectName(), 0, &effectPos, &mAng3_c::Zero, &effectScale);
+    Verify();
 }
 
 void dBlower_c::Execute()
@@ -115,7 +116,6 @@ void dBlower_c::Apply(dActor_c *obj[])
         bool isPlayer = false;
         if (!obj[i])
             return; // Since the Array fills from 0 onward without any spaces inbetween, just fuckin cancel shit if there is no more in the next slot
-        // It appears i am not able to clamp vectors. I should really fix that sometime
         if (i < 4 && obj[i] == Players[i])
         {
             isPlayer = true;
@@ -128,10 +128,10 @@ void dBlower_c::Apply(dActor_c *obj[])
             clampSymmetric(obj[i]->mSpeed.y + mFrameIntensity.y, mIntensity.y));
         if (isPlayer && CompareAgainstInput(WPAD_BUTTON_2, i))
         {
-            clampSymmetric(obj[i]->mSpeedF + (mFrameIntensity.x / 8), mIntensity.x),
-                calc.y = clampSymmetric(obj[i]->mSpeed.y + mFrameIntensity.y, mIntensity.y / 3);
+            calc.x = clampSymmetric(obj[i]->mSpeedF + (mFrameIntensity.x / 8), mIntensity.x);
+            calc.y = clampSymmetric(obj[i]->mSpeed.y + mFrameIntensity.y, mIntensity.y / 3);
         }
-        OSReport("ID=%i,FX=%f,FY=%f\n", mAssignedSlot, calc.x, calc.y);
+        //OSReport("ID=%i,FX=%f,FY=%f\n", mAssignedSlot, calc.x, calc.y);
         if (mIntensity.x != 0)
             obj[i]->mSpeedF = calc.x;
         if (mIntensity.y != 0)
@@ -256,6 +256,7 @@ dPlayerModifier_c::dPlayerModifier_c(float x, float y, u8 xs, u8 ys, u16 Overlay
     mActorBuffer[1] = NULL;
     mActorBuffer[2] = NULL;
     mActorBuffer[3] = NULL;
+    Verify();
 }
 
 //This line of code, makes a beautifiul effect appear, use with CallSpacer(30)

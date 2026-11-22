@@ -5,7 +5,7 @@
 #endif
 
 #define ext extern "C"
-#define MODS_SIZE 29 //Mods Array Size
+#define MODS_SIZE 30 //Mods Array Size
 
 #define INSTR_BLR 0x4e800020
 #define INSTR_NOP 0x60000000
@@ -73,11 +73,11 @@ extern dEn_c* smitePlayer;
 extern const char* Signature;
 
 extern dAcPy_c* Players[4];
-extern dGameKeyCore_c* Inputs[4]; 
+extern dGameKeyCore_c* Inputs[4];
 extern const Modifier Mods[MODS_SIZE];
 extern PhysicsOverride* PhysicsOverrides[4];
 
-//Const Storage, an attempt to make the compiler generate li since these dont have a RAM storage location
+//Const Storage, an attempt to make the compiler generate li since these dont wanna have too much RAM storage (this was corrected, and was originally a mistake made in the first 10 days)
 
 // Infinite-Lives "True" Amount
 #define LIVES_AMOUNT 0x64

@@ -43,10 +43,43 @@ const Modifier Mods[MODS_SIZE] = {
     //W4
     Modifier(1,4,0, PRE, (void (*)(void *))WaterStrangeness, 15, (void*)NULL, false, false),
     Modifier(2,4,0, PRE, (void (*)(void *))BomberFish, 60, (void*)NULL, false, false),
-    Modifier(3,4,0, PRE, (void (*)(void *))HuckMeSomeBalls, 15, (void*)NULL, false, false)
+    Modifier(3,4,0, PRE, (void (*)(void *))HuckMeSomeBalls, 15, (void*)NULL, false, false),
+    Modifier(22,4,0, ALL, (void (*)(void *))ToDefineTheWordConvey, 0, (void*)NULL, false, false)
 };
 
 PhysicsOverride* PhysicsOverrides[4] = {NULL};
+
+/*const sBcPointData DefaultCollision[20] {
+    //Normal/Walk/Jump
+    CreateSensorData(0x000c8001, 0xffffb000, 0x00004000, 0x00000000), //0x0/**0
+    CreateSensorData(0x005c0001, 0xffffe000, 0x00001000, 0x00010000), //0x10
+    CreateSensorData(0x000c0001, 0x00004000, 0x0000b000, 0x00008000), //0x20
+    CreateSensorData(0x000c0001, 0x00008000, 0x00001000, 0x00002000), //0x30
+
+    //Crouch/Groundpound
+    CreateSensorData(0x000c8001, 0xffffb000, 0x00004000, 0x00000000), //0x40
+    CreateSensorData(0x005c0001, 0xffffe000, 0x00001000, 0x0000c000), //0x50
+    CreateSensorData(0x000c0001, 0x00004000, 0x00008800, 0x00008000), //0x60
+    CreateSensorData(0x000c0001, 0x00008000, 0x00001000, 0x00002000), //0x70
+
+    //Unk1
+    CreateSensorData(0x000c8001, 0xffffb000, 0x00004000, 0x00000000), //0x80
+    CreateSensorData(0x005c0001, 0xffffe000, 0x00001000, 0x00001000), //0x90
+    CreateSensorData(0x000c0001, 0xffffc000, 0xffff2000, 0x00008000), //0xA0
+    CreateSensorData(0x000c0001, 0x00008000, 0x00001000, 0x00002000), //0xB0
+
+    //Unk2
+    CreateSensorData(0x000c8001, 0xffffb000, 0x00004000, 0x00000000), //0xC0
+    CreateSensorData(0x005c0001, 0xffffe000, 0x00001000, 0x00010000), //0xD0
+    CreateSensorData(0x000c0001, 0x00004000, 0x0000a000, 0x00008000), //0xE0
+    CreateSensorData(0x000c0001, 0x00008000, 0x00001000, 0x00002000), //0xF0
+
+    //Star::Jump
+    CreateSensorData(0x000c8001, 0xffffb000, 0x00004000, 0x00000000), //0x100
+    CreateSensorData(0x005c0001, 0xffffe000, 0x00001000, 0x0000c000), //0x110
+    CreateSensorData(0x000c0001, 0x00004000, 0x0000a000, 0x00008000), //0x120
+    CreateSensorData(0x000c0001, 0x00008000, 0x00001000, 0x00002000)  //0x130
+};*/
 
 void ExecMng::Initialize() {
     Spawners::daIcicle_c::SetGlobalScale(1); //Run this to cache SMC's to avoid false base-data
@@ -61,14 +94,20 @@ void ExecMng::Reset(bool full) {
     //OSReport("Reset Type: %i\n", full);
     dSys_c::setFrameRate(1);
     ModifyMovement(0);
+
+    for(int i = 0; i < 4; i++) {
+        if(PhysicsOverrides[i]) delete PhysicsOverrides[i];
+        //if(CollisionOverrides[i]) delete CollisionOverrides[i];
+    }
     
     if(!full) {
         dBaseActor_c* wmSwitchBroken = GetNextOfType(WM_SWITCH, NULL);
         if(wmSwitchBroken) {wmSwitchBroken->deleteRequest(); OSReport("Killed the Switch, hehe Killswitch\n");}
     }
-    if(full) {
-        for(int i = 0; i < MAX_OVERLAYOBJECTS; i++)
+
+    for(int i = 0; i < MAX_OVERLAYOBJECTS; i++)
             { if(OverlayObjects[i]) OverlayObjects[i]->mDelayedDelete = true; }
+    if(full) {
         LivePatch(0x38600086, &LP_PARABOMBSPAWNID);
         *daBoo_c::getGlobalScaler() = 1.f;
         Spawners::daIcicle_c::SetGlobalScale(1);
@@ -164,10 +203,37 @@ void ExecMng::OnPhysicsUpdate(dAcPy_c* plr) {
     return;
 }
 
+//80142784
+void* ExecMng::OnBcPickSource(void* out) {
+    register void* ptr;
+    register void* offset;
+    asm("mr ptr, r28");
+    asm("mr offset, r5");
+    const TileCollisionOverride* chosen = NULL;
+    for(int i = 0; i < 4; i++) {
+        if(PhysicsOverrides[i] && PhysicsOverrides[i]->mOwner == ptr && PhysicsOverrides[i]->State[3])
+            chosen = &PhysicsOverrides[i]->CollisionOverride;
+    }
+    if(chosen) out = GetMemberFromOffset((void*)chosen, (u32)offset * 0x40);
+    return out;
+}
+
+ext void* LookupBc() {
+    asm("lis r3,0x8032");
+    asm("rlwinm r4,r4,2,0,29");
+    asm("addi r3,r3,21972");
+    asm("rlwinm r0,r5,6,0,25");
+    asm("lwzx r3,r3,r4");
+    asm("add r3,r3,r0");
+    asm("blr");
+    //Replaces the original function
+}
+
 //Execution Hooks
 kmBranchDefCpp(0x800e4814, NULL, void, void) { ExecMng::Execute(PRE); }
 kmBranchDefCpp(0x800e4874, NULL, void, void) { ExecMng::Execute(POST);}
 kmBranchDefCpp(0x800552b0, NULL, void, void) { ExecMng::OnPhysicsUpdate(NULL); }
+kmCallDefCpp(0x80142784, void, void)         { ExecMng::OnBcPickSource(LookupBc()); }
 
 kmBranchDefCpp(0x8015d82c, NULL, void, void) { ExecMng::Initialize(); }
 kmBranchDefCpp(0x800bbbb4, NULL, void, void) { ExecMng::Reset(true);  }
@@ -182,7 +248,7 @@ kmBranchDefCpp(0x800F36B0, NULL, void, int w, int sw) { PoisonMapData::Initializ
 kmWrite32(0x800F1960, INSTR_BLR); // Allow Debug (BLRs DeleteDebugMaterial)
 #endif
 
-kmWrite32(0x800e3ab8, 0x3c0001f4); // FuckTimers! | NO-OPs Timer Execution
+kmWrite32(0x800e3ab8, 0x3c0001f4); // FuckTimers! | (Functionally) NO-OPs Timer Execution
 kmWrite32(0x801591f0, 0x4e800020); // Disable1UpEffect! | Disables the 1Up Effect
 kmWrite32(0x8010CDE0,  INSTR_BLR); // No Scores | BLRs ScoreManager Execution
 kmWrite32(0x800b1910,  INSTR_BLR); // No Fukidashi | BLRs the Fuki Manager, to remove the pesky popups

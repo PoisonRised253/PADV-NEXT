@@ -13,13 +13,13 @@ ext bool GetAllInputs() {
 }
 
 ext dGameKeyCore_c* CompareToInputs(const int mask) {
-    if (Inputs[0] && ((Inputs[0]->mPrevHoldButtons & mask) == mask) || ((Inputs[0]->mPrevDownButtons & mask) == mask))
+    if (Inputs[0] && (((Inputs[0]->mPrevHoldButtons & mask) == mask) || ((Inputs[0]->mPrevDownButtons & mask) == mask)))
         return Inputs[0];
-    if (Inputs[1] && ((Inputs[1]->mPrevHoldButtons & mask) == mask) || ((Inputs[1]->mPrevDownButtons & mask) == mask))
+    if (Inputs[1] && (((Inputs[1]->mPrevHoldButtons & mask) == mask) || ((Inputs[1]->mPrevDownButtons & mask) == mask)))
         return Inputs[1];
-    if (Inputs[2] && ((Inputs[2]->mPrevHoldButtons & mask) == mask) || ((Inputs[2]->mPrevDownButtons & mask) == mask))
+    if (Inputs[2] && (((Inputs[2]->mPrevHoldButtons & mask) == mask) || ((Inputs[2]->mPrevDownButtons & mask) == mask)))
         return Inputs[2];
-    if (Inputs[3] && ((Inputs[3]->mPrevHoldButtons & mask) == mask) || ((Inputs[3]->mPrevDownButtons & mask) == mask))
+    if (Inputs[3] && (((Inputs[3]->mPrevHoldButtons & mask) == mask) || ((Inputs[3]->mPrevDownButtons & mask) == mask)))
         return Inputs[3];
 
     return NULL;
@@ -56,7 +56,7 @@ ext dEn_c *GetNextOfType(Actors actorID, void* start)
 // 8 = Normal-Sized Mini | 0x79
 ext int GetPowerupType(u32 settings)
 {
-    u32 b = settings & 0xF; // last two bits only
+    u32 b = settings & 0xFF; // last two bits only
     switch (b)
     {
     case 0x00:
@@ -228,11 +228,11 @@ int FindPointerInArray(void *arr[], int size, void *ptr)
     return 0xFFFF;
 }
 
-ext bool *isDemo(dAcPy_c *player) { return (bool *) GetMemberFromOffset(player, 0x1460); }
-ext int *GetPlayerPowerState(dAcPy_c *player) { return (int *) GetMemberFromOffset(player, 0x14E0); }
-ext int *checkGrounded(dAcPy_c *player) { return (int *) GetMemberFromOffset(player, 0x10D4); }
-ext int *checkAllowedMoves(dAcPy_c *player) { return (int *) GetMemberFromOffset(player, 0x10D8); }
-ext int *GetPlayerState(dAcPy_c *player) { return (int *) GetMemberFromOffset(player, 0x1478); }
+ext bool *isDemo(dAcPy_c *player)               { return (bool *) GetMemberFromOffset(player, 0x1460); }
+ext int *GetPlayerPowerState(dAcPy_c *player)   { return (int *) GetMemberFromOffset(player, 0x14E0); }
+ext int *checkGrounded(dAcPy_c *player)         { return (int *) GetMemberFromOffset(player, 0x10D4); }
+ext int *checkAllowedMoves(dAcPy_c *player)     { return (int *) GetMemberFromOffset(player, 0x10D8); }
+ext int *GetPlayerState(dAcPy_c *player)        { return (int *) GetMemberFromOffset(player, 0x1478); }
 
 ext bool isPause()
 {
@@ -253,7 +253,7 @@ inline u32 NoJumping(u32 value)
 
 ext void DisableItem(u32 ItemID, u32 replaceWith)
 {
-    volatile int *itm = NULL;
+    int *itm = NULL;
     for (int i = 0; i < 4; i++)
     {
         if (!Players[i])
@@ -299,8 +299,33 @@ ext void DumpPlayer(int which)
             gm->__GetUnitPointer(x, y - 16, 0, NULL, NULL),
             gm->__GetUnitPointer(x, y + 16, 0, NULL, NULL)};
 
-    OSReport("\n--------------------------------------\n------Player %i Dump:------\n---Pointer: %p---\n---X: %f---\n---Y: %f---\n---Power: %p---\n---IsDemo: %i---\n---IsPause: %i---\n---IsGrounded: %i---\n---State: %p---\n---Level: %i---\n---World: %i---\n---Area: %i---\n------NearestTiles:------\n---Up: %p---\n---Down: %p---\n---Left: %p---\n---Right: %p---\n--------------------------------------\n\n", which, Players[which], Players[which]->mPos.x, Players[which]->mPos.y, *GetPlayerPowerState(Players[which]), *isDemo(Players[which]), isPause(), (bool)*checkGrounded(Players[which]), *checkAllowedMoves(Players[which]), dScStage_c::m_instance->mCurrCourse, dScStage_c::m_instance->mCurrWorld, dScStage_c::m_instance->mCurrAreaNo, *NearestTiles[2], *NearestTiles[3], *NearestTiles[0], *NearestTiles[1]);
-    //dActor_c::construct(EN_ITEM, 0x000000F9, &mVec3_c(Players[which]->mPos.x, Players[which]->mPos.y + 128, 0), &mAng3_c::Zero, 0);
+    OSReport(
+        "\n--------------------------------------\n------Player %i Dump:------\n---Pointer: %p---\n---X: %f---\n---Y: %f---\n---Power: %p---\n---IsDemo: %i---\n---IsPause: %i---\n---IsGrounded: %i---\n---State: %p---\n---Level: %i---\n---World: %i---\n---Area: %i---\n\n------NearestTiles:------\n---Up: %p---\n---Down: %p---\n---Left: %p---\n---Right: %p---\n\n------Colliders: ------\n---mCc: %p---\n---mCc1: %p---\n---mAttCc1: %p---\n---mAttCc2: %p---\n---mAttCc3: %p---\n---mBc: %p---\n---mBgCtr: %p---\n--------------------------------------\n\n", 
+        which,
+        Players[which], 
+        Players[which]->mPos.x, 
+        Players[which]->mPos.y, 
+        *GetPlayerPowerState(Players[which]), 
+        *isDemo(Players[which]), 
+        isPause(),
+        (*checkGrounded(Players[which]) & 0x0000000F) == 1,
+        *checkAllowedMoves(Players[which]), 
+        dScStage_c::m_instance->mCurrCourse, 
+        dScStage_c::m_instance->mCurrWorld, 
+        dScStage_c::m_instance->mCurrAreaNo, 
+        *NearestTiles[2], 
+        *NearestTiles[3], 
+        *NearestTiles[0], 
+        *NearestTiles[1],
+        &Players[which]->mCc,
+        &Players[which]->mCc1,
+        &Players[which]->mAttCc1,
+        &Players[which]->mAttCc2,
+        &Players[which]->mAttCc3,
+        &Players[which]->mBc,
+        &Players[which]->mpDokanBgCtr
+    );
+
     return;
 }
 #endif
@@ -373,6 +398,11 @@ ext void SetPlayerBecomeJesus(register dAcPy_c* actor, register bool state) {
     asm("commit:\n stw r4, 0x102C(r3)\nblr");
 }
 
+ext bool IsPlayerStateEqual(dAcPy_c* player, sFStateID_c<dAcPy_c> Comparitor) {
+    //return *GetPlayerState(player) == Comparitor.number(); //Appearently, this is the StateOld. Meaning this is actually onPostState... atleast somewhat
+    return player->mStateMgr.getStateID()->isEqual(Comparitor);
+}
+
 /*ext dEn_c *GetNearestPlayer(mVec3_c relativeTo)
 {
     dEn_c *Winner = NULL;
@@ -412,19 +442,28 @@ ext void AntiBubble()
     {
         if (!Players[i])
             continue;
-        if (*GetPlayerState(Players[i]) != STATEID_BALLOON)
+        if (!IsPlayerStateEqual(Players[i], dAcPy_c::StateID_Balloon))
             continue;
+        #ifdef PADV_ANTIBUBBLE_LEGACY
         dAcPy_c *p = Players[clamp<int>(i - 1, 0, 3)];
         dAcPy_c *p2 = Players[clamp<int>(i + 1, 0, 3)];
 
-        if (i > 0 && p != NULL)
+        if (i > 0 && p && !p->mStateMgr.getStateID()->isEqual(dAcPy_c::StateID_Balloon))
         {
             Players[i]->mPos = VecAdd(p->mPos, MakeVec(0, 8.f, 0));
         }
-        else if (p2)
+        else if (p2 && !p2->mStateMgr.getStateID()->isEqual(dAcPy_c::StateID_Balloon))
         {
             Players[i]->mPos = VecAdd(p2->mPos, MakeVec(0, 8.f, 0));
         }
+        #else
+        mVec2_c discard;
+        dAcPy_c* target = Players[i]->searchNearPlayer(discard);
+        if(target && !IsPlayerStateEqual(target, dAcPy_c::StateID_Balloon) && !IsPlayerStateEqual(target, dAcPy_c::StateID_DemoFallDown))
+            Players[i]->mPos = VecAdd(target->mPos, mVec3_c(0, 8, 0));
+        #endif
+
+        //Common
         dEn_c *bubble = GetNextOfType(EN_HATENA_BALLOON, NULL);
         if (!bubble)
             continue;
@@ -436,17 +475,20 @@ ext void AntiBubble()
 
 ext bool TryCreateOverlay(int OverlayObjectType, Actors OverlayedActorID) {
     dActor_c *obj = GetNextOfType(OverlayedActorID, NULL);
-    if (!obj)
-        return false;
-    int which = obj->mParam;
-    if (which == 0x0)
-        return false;
+    int config;
+    if(!obj) return false; //The 'Any' case
+    for(int i = 0; i < 4; i++) {
+        config = obj->mParam;
+        if(config != 0) break;
+        obj = GetNextOfType(OverlayedActorID, obj);
+        if(!obj) return false;
+    }
     mVec3_c newPos = obj->mPos;
-    OSReport("Position=%f,%f\n", newPos.x, newPos.y);
+    //OSReport("Position=%f,%f\n", newPos.x, newPos.y);
 
     switch(OverlayObjectType) {
-        case 1: dBlower_c::createFromParam(newPos.x, newPos.y, which, OverlayedActorID); break;
-        case 2: dPlayerModifier_c::createFromParam(newPos.x, newPos.y, which, OverlayedActorID); break;
+        case 1: dBlower_c::createFromParam(newPos.x, newPos.y, config, OverlayedActorID); break;
+        case 2: dPlayerModifier_c::createFromParam(newPos.x, newPos.y, config, OverlayedActorID); break;
         default: return false;
     }
 
@@ -456,8 +498,8 @@ ext bool TryCreateOverlay(int OverlayObjectType, Actors OverlayedActorID) {
 
 //Vanilla Conveyer Speeds: 0,5 for Slow, 1 for fast, Negate for leftwards
 ext void SetConveyerSpeed(dAcPy_c* player, float newSpeed) {
-    float* convSpeed = (float*)GetMemberFromOffset(player, 0x10C4);
-    if(convSpeed) *convSpeed = newSpeed;
+    *(float*)GetMemberFromOffset(player, 0x10C4) = newSpeed;
+    return;
 }
 
 #ifdef DEBUG_BALLS

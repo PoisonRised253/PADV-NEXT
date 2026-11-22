@@ -101,8 +101,8 @@ ext void TowerFunc()
 // Also tries to make specifically Players[0] have higher swim speed, but might apply to all players. <- This part has been lost, due to Moving from Kamek2013 to PropelParts
 ext void MarioCantBreatheUnderwater()
 {
-    static const float dps = WATER_DRAIN / 60;
-    static const float sps = SWIM_MOD / 60;
+    static const float dps = WATER_DRAIN / 60.f;
+    static const float sps = SWIM_MOD / 60.f;
     dEn_c *water = (dEn_c *)GetNextOfType(AC_BG_WATER, false);
     if (water)
         water->mPos.y -= dps;
@@ -221,9 +221,6 @@ ext void LiterallyBulletHell()
     }
 
     dEn_c *fireball = GetNextOfType(PAKKUN_FIREBALL, false);
-    Vec pos, vel;
-    u8 dir;
-
     if (!fireball)
         return;
 
@@ -486,7 +483,8 @@ ext void SlideyBlocks()
         u16 *NearestTiles[4] = {
             gm->__GetUnitPointer(x - 16, y, 0, NULL, NULL),
             gm->__GetUnitPointer(x + 16, y, 0, NULL, NULL),
-            gm->__GetUnitPointer(x, y - 16, 0, NULL, NULL),
+            //gm->__GetUnitPointer(x, y - 16, 0, NULL, NULL),
+            NULL,
             gm->__GetUnitPointer(x, y + 16, 0, NULL, NULL)
         };
 
@@ -626,7 +624,8 @@ ext void BomberFish() {
 }
 
 ext void HuckMeSomeBalls() {
-    if(isInStage) daHuckit_c::SetSpawnID(daLemmyBall_c::actorID);
+    if(!isInStage) return;
+    daHuckit_c::SetSpawnID(daLemmyBall_c::actorID);
     daLemmyBall_c* ball = (daLemmyBall_c*)GetNextOfType(daLemmyBall_c::actorID, NULL);
     while(ball) {
         ball->setHitbox(7);
@@ -635,10 +634,18 @@ ext void HuckMeSomeBalls() {
     return;
 }
 
+ext void ToDefineTheWordConvey() {
+    for(int i = 0; i < 4; i++) {
+        if(!Players[i]) continue;
+
+        if(!PhysicsOverrides[i]) 
+            new PhysicsOverride(Players[i], mVec2_c(15.5,20), mVec2_c(0,20), mVec2_c(2,2.5f), 0, true, (void**)PhysicsOverrides);
+    }
+}
 
 
 // Unused stuff:
-#ifdef DEBUG_UNUSED
+#ifdef PADV_UNUSED
 // Mode false: preGameLoop();
 // Mode true: postGameLoop();
 // This function makes WorldMap like movement happen in levels.

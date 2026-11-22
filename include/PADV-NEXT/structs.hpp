@@ -3,10 +3,13 @@
 #include "PADV-NEXT/defines.h"
 #include "PADV-NEXT/Utils.h"
 
+extern void* DAT_NORMALCOLLISION;
+
 extern "C" bool isPause();
 extern dAcPy_c* Players[4];
 extern int FindPointerInArray(void *arr[], int size, void *ptr);
 extern "C" void SetConveyerSpeed(dAcPy_c*, float);
+extern "C" int *checkGrounded(dAcPy_c*);
 
 enum ExecPhase
 {
@@ -21,6 +24,131 @@ enum ActorLayer
     NORMAL = 0,
     FOREGROUND = 1,
     BACKGROUND = 2
+};
+
+//Basically just my own names for the BcPoint, because that means i can keep the normal headers.
+struct TileCollider {
+    int mFlags;
+    int mLineA;
+    int mLineB;
+    int mDistance;
+    static const int Divider = 2048;
+
+    //Assumes *2048 scaled numbers
+    static TileCollider CreatePrescaled(int Flags, int LineA, int LineB, int Distance) {return TileCollider(Flags, LineA, LineB, Distance); }
+
+    //Assumes unscaled (*1) numbers, scales automatically
+    static TileCollider CreateUnscaled(int Flags, int LineA, int LineB, int Distance) { return CreatePrescaled(Flags, LineA * Divider, LineB * Divider, Distance); }
+
+    TileCollider(int Flags, int LineA, int LineB, int Distance) { mFlags = Flags; mLineA = LineA; mLineB = LineB; mDistance = Distance; }
+    ~TileCollider() {}
+};
+
+struct TileCollisionSet {
+    TileCollider mFoot;
+    TileCollider mHead;
+    TileCollider mWall;
+    TileCollider mVine;
+    TileCollisionSet(TileCollider Foot, TileCollider Head, TileCollider Wall, TileCollider Vine) : mFoot(Foot), mHead(Head), mWall(Wall), mVine(Vine) {}
+    TileCollisionSet(int FlagC[4], int LineAC[4], int LineBC[4], int DistanceC[4]) : 
+        mFoot(TileCollider::CreatePrescaled(FlagC[0], LineAC[0], LineBC[0], DistanceC[0])),
+        mHead(TileCollider::CreatePrescaled(FlagC[1], LineAC[1], LineBC[1], DistanceC[1])),
+        mWall(TileCollider::CreatePrescaled(FlagC[2], LineAC[2], LineBC[2], DistanceC[2])),
+        mVine(TileCollider::CreatePrescaled(FlagC[3], LineAC[3], LineBC[3], DistanceC[3]))
+        {}
+
+    ~TileCollisionSet() {}
+};
+
+struct TileCollisionOverride {
+    TileCollisionSet mNormal;
+    TileCollisionSet mCrouch;
+    TileCollisionSet mUnk1;
+    TileCollisionSet mUnk2;
+    TileCollisionSet mStar;
+    dAcPy_c* mOwner; //This should be out of range of the original code, so that it wont push this into
+    static const TileCollisionOverride* DefaultBase() { return (const TileCollisionOverride*)&DAT_NORMALCOLLISION; }
+
+    //DO NOT RUN THIS MORE THAN ONCE PER FRAME
+    static TileCollisionOverride CreateMultiplied(float XMulti, float YMulti) {
+        TileCollisionOverride out = TileCollisionOverride(*DefaultBase());
+        out.mNormal.mFoot.mLineA *= XMulti;
+        out.mNormal.mFoot.mLineB *= XMulti;
+        out.mNormal.mFoot.mDistance *= YMulti;
+        out.mNormal.mHead.mLineA *= XMulti;
+        out.mNormal.mHead.mLineB *= XMulti;
+        out.mNormal.mHead.mDistance *= YMulti;
+        out.mNormal.mWall.mLineA *= YMulti;
+        out.mNormal.mWall.mLineB *= YMulti;
+        out.mNormal.mWall.mDistance *= XMulti;
+        out.mNormal.mVine.mLineA *= YMulti;
+        out.mNormal.mVine.mLineB *= YMulti;
+        out.mNormal.mVine.mDistance *= XMulti;
+
+        out.mCrouch.mFoot.mLineA *= XMulti;
+        out.mCrouch.mFoot.mLineB *= XMulti;
+        out.mCrouch.mFoot.mDistance *= YMulti;
+        out.mCrouch.mHead.mLineA *= XMulti;
+        out.mCrouch.mHead.mLineB *= XMulti;
+        out.mCrouch.mHead.mDistance *= YMulti;
+        out.mCrouch.mWall.mLineA *= YMulti;
+        out.mCrouch.mWall.mLineB *= YMulti;
+        out.mCrouch.mWall.mDistance *= XMulti;
+        out.mCrouch.mVine.mLineA *= YMulti;
+        out.mCrouch.mVine.mLineB *= YMulti;
+        out.mCrouch.mVine.mDistance *= XMulti;
+
+        out.mUnk1.mFoot.mLineA *= XMulti;
+        out.mUnk1.mFoot.mLineB *= XMulti;
+        out.mUnk1.mFoot.mDistance *= YMulti;
+        out.mUnk1.mHead.mLineA *= XMulti;
+        out.mUnk1.mHead.mLineB *= XMulti;
+        out.mUnk1.mHead.mDistance *= YMulti;
+        out.mUnk1.mWall.mLineA *= YMulti;
+        out.mUnk1.mWall.mLineB *= YMulti;
+        out.mUnk1.mWall.mDistance *= XMulti;
+        out.mUnk1.mVine.mLineA *= YMulti;
+        out.mUnk1.mVine.mLineB *= YMulti;
+        out.mUnk1.mVine.mDistance *= XMulti;
+
+        out.mUnk2.mFoot.mLineA *= XMulti;
+        out.mUnk2.mFoot.mLineB *= XMulti;
+        out.mUnk2.mFoot.mDistance *= YMulti;
+        out.mUnk2.mHead.mLineA *= XMulti;
+        out.mUnk2.mHead.mLineB *= XMulti;
+        out.mUnk2.mHead.mDistance *= YMulti;
+        out.mUnk2.mWall.mLineA *= YMulti;
+        out.mUnk2.mWall.mLineB *= YMulti;
+        out.mUnk2.mWall.mDistance *= XMulti;
+        out.mUnk2.mVine.mLineA *= YMulti;
+        out.mUnk2.mVine.mLineB *= YMulti;
+        out.mUnk2.mVine.mDistance *= XMulti;
+
+        out.mStar.mFoot.mLineA *= XMulti;
+        out.mStar.mFoot.mLineB *= XMulti;
+        out.mStar.mFoot.mDistance *= YMulti;
+        out.mStar.mHead.mLineA *= XMulti;
+        out.mStar.mHead.mLineB *= XMulti;
+        out.mStar.mHead.mDistance *= YMulti;
+        out.mStar.mWall.mLineA *= YMulti;
+        out.mStar.mWall.mLineB *= YMulti;
+        out.mStar.mWall.mDistance *= XMulti;
+        out.mStar.mVine.mLineA *= YMulti;
+        out.mStar.mVine.mLineB *= YMulti;
+        out.mStar.mVine.mDistance *= XMulti;
+        return out;
+    }
+
+    TileCollisionOverride(TileCollisionSet Normal, TileCollisionSet Crouch, TileCollisionSet Unk1, TileCollisionSet Unk2, TileCollisionSet Star) : mNormal(Normal), mCrouch(Crouch), mUnk1(Unk1), mUnk2(Unk2), mStar(Star) {}
+    TileCollisionOverride(const TileCollisionOverride& other) : mNormal(other.mNormal), mCrouch(other.mCrouch), mUnk1(other.mUnk1), mUnk2(other.mUnk2), mStar(other.mStar) {}
+    TileCollisionOverride(int FlagC[20], int LineAC[20], int LineBC[20], int DistanceC[20]) : 
+    mNormal(FlagC, LineAC, LineBC, DistanceC),
+    mCrouch(FlagC + 4, LineAC + 4, LineBC + 4, DistanceC + 4),
+    mUnk1(FlagC + 8, LineAC + 8, LineBC + 8, DistanceC + 8),
+    mUnk2(FlagC + 12, LineAC + 12, LineBC + 12, DistanceC + 12),
+    mStar(FlagC + 16, LineAC + 16, LineBC + 16, DistanceC + 16)
+    {}
+    ~TileCollisionOverride() {}
 };
 
 // Level and World are 1-Indexed. Do not enter 0 unless it shouldnt ever work.
@@ -100,34 +228,58 @@ typedef struct mVec4_c
         return (this->x == other.x && this->y == other.y && this->z == other.z && this->w == other.w);
     }
 
-    mVec4_c operator+=(const mVec4_c &other)
+    mVec4_c& operator+=(const mVec4_c &other)
     {
-        return mVec4_c(this->x + other.x, this->y + other.y, this->z + other.z, this->w + other.w);
+        this->x += other.x; 
+        this->y += other.y;
+        this->z += other.z; 
+        this->w += other.w;
+        return *this;
     }
 
-    mVec4_c operator-=(const mVec4_c &other)
+    mVec4_c& operator-=(const mVec4_c &other)
     {
-        return mVec4_c(this->x - other.x, this->y - other.y, this->z - other.z, this->w - other.w);
+        this->x -= other.x;
+        this->y -= other.y;
+        this->z -= other.z;
+        this->w -= other.w;
+        return *this;
     }
 
-    mVec4_c operator*=(const mVec4_c &other)
+    mVec4_c& operator*=(const mVec4_c &other)
     {
-        return mVec4_c(this->x * other.x, this->y * other.y, this->z * other.z, this->w * other.w);
+        this->x *= other.x;
+        this->y *= other.y;
+        this->z *= other.z;
+        this->w *= other.w;
+        return *this;
     }
 
-    mVec4_c operator*=(const float other)
+    mVec4_c& operator*=(const float other)
     {
-        return mVec4_c(this->x * other, this->y * other, this->z * other, this->w * other);
+        this->x *= other;
+        this->y *= other;
+        this->z *= other;
+        this->w *= other;
+        return *this;
     }
 
-    mVec4_c operator/=(const mVec4_c &other)
+    mVec4_c& operator/=(const mVec4_c &other)
     {
-        return mVec4_c(this->x / other.x, this->y / other.y, this->z / other.z, this->w / other.w);
+        this->x /= other.x;
+        this->y /= other.y;
+        this->z /= other.z;
+        this->w /= other.w;
+        return *this;
     }
 
-    mVec4_c operator/=(const float other)
+    mVec4_c& operator/=(const float other)
     {
-        return mVec4_c(this->x / other, this->y / other, this->z / other, this->w / other);
+        this->x /= other;
+        this->y /= other;
+        this->z /= other;
+        this->w /= other;
+        return *this;
     }
 
     mVec4_c()
@@ -174,34 +326,46 @@ typedef struct mVecU16_c
         return (this->x == other.x && this->y == other.y);
     }
 
-    mVecU16_c operator+=(const mVecU16_c &other)
+    mVecU16_c& operator+=(const mVecU16_c &other)
     {
-        return mVecU16_c(this->x + other.x, this->y + other.y);
+        this->x += other.x;
+        this->y += other.y;
+        return *this;
     }
 
-    mVecU16_c operator-=(const mVecU16_c &other)
+    mVecU16_c& operator-=(const mVecU16_c &other)
     {
-        return mVecU16_c(this->x - other.x, this->y - other.y);
+        this->x -= other.x;
+        this->y -= other.y;
+        return *this;
     }
 
-    mVecU16_c operator*=(const mVecU16_c &other)
+    mVecU16_c& operator*=(const mVecU16_c &other)
     {
-        return mVecU16_c(this->x * other.x, this->y * other.y);
+        this->x *= other.x;
+        this->y *= other.y;
+        return *this;
     }
 
-    mVecU16_c operator*=(const u16 other)
+    mVecU16_c& operator*=(const u16 other)
     {
-        return mVecU16_c(this->x * other, this->y * other);
+        this->x *= other;
+        this->y *= other;
+        return *this;
     }
 
-    mVecU16_c operator/=(const mVecU16_c &other)
+    mVecU16_c& operator/=(const mVecU16_c &other)
     {
-        return mVecU16_c(this->x / other.x, this->y / other.y);
+        this->x /= other.x;
+        this->y /= other.y;
+        return *this;
     }
 
-    mVecU16_c operator/=(const u16 other)
+    mVecU16_c& operator/=(const u16 other)
     {
-        return mVecU16_c(this->x / other, this->y / other);
+        this->x /= other;
+        this->y /= other;
+        return *this;
     }
 
     mVecU16_c()
@@ -231,37 +395,55 @@ typedef struct mVecInt_c
 
     bool operator==(const mVecInt_c &other) const
     {
-        return (this->x == other.x && this->y == other.y, this->z == other.z);
+        return (this->x == other.x && this->y == other.y && this->z == other.z);
     }
 
-    mVecInt_c operator+=(const mVecInt_c &other)
+    mVecInt_c& operator+=(const mVecInt_c &other)
     {
-        return mVecInt_c(this->x + other.x, this->y + other.y, this->z + other.z);
+        this->x += other.x;
+        this->y += other.y;
+        this->z += other.z;
+        return *this;
     }
 
-    mVecInt_c operator-=(const mVecInt_c &other)
+    mVecInt_c& operator-=(const mVecInt_c &other)
     {
-        return mVecInt_c(this->x - other.x, this->y - other.y, this->z - other.z);
+        this->x -= other.x;
+        this->y -= other.y;
+        this->z -= other.z;
+        return *this;
     }
 
-    mVecInt_c operator*=(const mVecInt_c &other)
+    mVecInt_c& operator*=(const mVecInt_c &other)
     {
-        return mVecInt_c(this->x * other.x, this->y * other.y, this->z * other.z);
+        this->x *= other.x;
+        this->y *= other.y;
+        this->z *= other.z;
+        return *this;
     }
 
-    mVecInt_c operator*=(const u32 other)
+    mVecInt_c& operator*=(const u32 other)
     {
-        return mVecInt_c(this->x * other, this->y * other, this->z * other);
+        this->x *= other;
+        this->y *= other;
+        this->z *= other;
+        return *this;
     }
 
-    mVecInt_c operator/=(const mVecInt_c &other)
+    mVecInt_c& operator/=(const mVecInt_c &other)
     {
-        return mVecInt_c(this->x / other.x, this->y / other.y, this->z / other.z);
+        this->x /= other.x;
+        this->y /= other.y;
+        this->z /= other.z;
+        return *this;
     }
 
-    mVecInt_c operator/=(const u32 other)
+    mVecInt_c& operator/=(const u32 other)
     {
-        return mVecInt_c(this->x / other, this->y / other, this->z + other);
+        this->x += other;
+        this->y += other;
+        this->z += other;
+        return *this;
     }
 
     mVecInt_c()
@@ -289,29 +471,46 @@ typedef struct mVecInt_c
 struct PhysicsOverride {
     public:
     dAcPy_c* mOwner;
-    mVec2_c mBgScale;
-    mVec2_c mBgOffset;
+    mVec2_c mCCOffset; //Normal +/- for XY, From Center
+    mVec2_c mCCScale; //Mirrored from Center by Vanilla
+    const TileCollisionOverride CollisionOverride;
+    
     float mBgConveyerbeltness;
-    bool State[4];
+    bool State[5];
     void** arr;
 
     void Apply() {
         if(mOwner < (dAcPy_c*)0x80000000) return;
-        if(State[4]) SetConveyerSpeed(mOwner, mBgConveyerbeltness);
+        if(State[1]) {
+            *(mVec2_c*)GetMemberFromOffset(&mOwner->mCc, 0x24) = mCCScale;
+            *(mVec2_c*)GetMemberFromOffset(&mOwner->mCc1, 0x24) = mCCScale;
+            *(mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc1, 0x24) = mCCScale;
+            *(mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc2, 0x24) = mCCScale;
+            *(mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc3, 0x24) = mCCScale;
+        }
+        if(State[2]) {
+            *(mVec2_c*)GetMemberFromOffset(&mOwner->mCc, 0x1C) = mCCOffset;
+            *(mVec2_c*)GetMemberFromOffset(&mOwner->mCc1, 0x1C) = mCCOffset;
+            *(mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc1, 0x1C) = mCCOffset;
+            *(mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc2, 0x1C) = mCCOffset;
+            *(mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc3, 0x1C) = mCCOffset;
+        }
+        if(State[4] && (*checkGrounded(mOwner) & 0x0000000F) == 1) SetConveyerSpeed(mOwner, mBgConveyerbeltness);
         //The Others arent Implemented yet lol
         if(!State[0]) delete this;
     }
 
-    PhysicsOverride(dAcPy_c* owner, mVec2_c BgScale, mVec2_c BgOffset, float conveyerness, bool keepAlive, void** array) {
+    PhysicsOverride(dAcPy_c* owner, mVec2_c CCScale, mVec2_c CCOffset, mVec2_c TileMultiplier, float conveyerness, bool keepAlive, void** array) : CollisionOverride(TileCollisionOverride::CreateMultiplied(TileMultiplier.x, TileMultiplier.y)) {
         mOwner = owner;
-        mBgScale = BgScale;
-        mBgOffset = BgOffset;
+        mCCScale = CCScale; 
+        mCCOffset = CCOffset; 
         mBgConveyerbeltness = conveyerness;
         arr = array;
         State[0] = keepAlive; //Keep Alive Until Level Reload.
-        State[1] = BgScale.x || BgScale.y;
-        State[2] = BgOffset.x || BgOffset.y;
-        State[3] = conveyerness;
+        State[1] = CCScale.x || CCScale.y;
+        State[2] = CCOffset.x || CCOffset.y;
+        State[3] = TileMultiplier.x && TileMultiplier.y; //Deferred into OnBcPickSource
+        State[4] = conveyerness;
         
         int id = FindPointerInArray((void**)Players, 4, owner);
         if(id == 0xFFFF) OSReport("Owner not found, memory leak achieved\n");
@@ -325,6 +524,7 @@ struct PhysicsOverride {
         if(id != 0xFFFF) arr[id] = NULL;
     };
 };
+
 
 enum Powers
 {
@@ -390,6 +590,7 @@ enum Dummy
     EN_BLUR_C = (int)EN_BLUR
 };
 
+//Crashes afaik
 enum Broken
 {
     AC_LIFT_OBJBG_HMOVE_BIG_C = (int)AC_LIFT_OBJBG_HMOVE_BIG

@@ -8,5 +8,8 @@ class ExecMng {
     static void Reset(bool);
     static void Execute(ExecPhase);
     static void OnPhysicsUpdate(dAcPy_c* plr);
+    static void* OnBcPickSource(void* out); //r3=out_data, r28=plr
 };
+
+ext void* LookupBc();
 #endif

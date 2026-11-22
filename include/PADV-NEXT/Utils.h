@@ -28,6 +28,7 @@ ext void HandleHotkeys();
 ext bool SetActorCollisionLayer(dActor_c*, char);
 ext void SetActorCollisionLayer_internal(dActor_c* actor, char layer);
 ext void SetPlayerBecomeJesus(register dAcPy_c* actor, register bool state);
+ext bool IsPlayerStateEqual(dAcPy_c* player, sFStateID_c<dAcPy_c> Comparitor);
 ext void AntiBubble();
 ext bool TryCreateOverlay(int OverlayObjectType, Actors OverlayedActorID);
 ext void SetConveyerSpeed(dAcPy_c* player, float newSpeed);
