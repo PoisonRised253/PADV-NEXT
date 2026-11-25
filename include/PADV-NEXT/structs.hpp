@@ -3,7 +3,9 @@
 #include "PADV-NEXT/defines.h"
 #include "PADV-NEXT/Utils.h"
 
+extern void* DAT_SMALLCOLLISION;
 extern void* DAT_NORMALCOLLISION;
+extern void* DAT_SUPERCOLLISION;
 
 extern "C" bool isPause();
 extern dAcPy_c* Players[4];
@@ -66,12 +68,15 @@ struct TileCollisionOverride {
     TileCollisionSet mUnk1;
     TileCollisionSet mUnk2;
     TileCollisionSet mStar;
+
     dAcPy_c* mOwner; //This should be out of range of the original code, so that it wont push this into
-    static const TileCollisionOverride* DefaultBase() { return (const TileCollisionOverride*)&DAT_NORMALCOLLISION; }
+    static const TileCollisionOverride* MiniBase() { return (const TileCollisionOverride*)&DAT_SMALLCOLLISION; }
+    static const TileCollisionOverride* NormalBase() { return (const TileCollisionOverride*)&DAT_NORMALCOLLISION; }
+    static const TileCollisionOverride* BigBase() { return (const TileCollisionOverride*)&DAT_SUPERCOLLISION; }
 
     //DO NOT RUN THIS MORE THAN ONCE PER FRAME
-    static TileCollisionOverride CreateMultiplied(float XMulti, float YMulti) {
-        TileCollisionOverride out = TileCollisionOverride(*DefaultBase());
+    static TileCollisionOverride CreateMultiplied(const TileCollisionOverride* copyFrom, float XMulti, float YMulti) {
+        TileCollisionOverride out = TileCollisionOverride(*copyFrom);
         out.mNormal.mFoot.mLineA *= XMulti;
         out.mNormal.mFoot.mLineB *= XMulti;
         out.mNormal.mFoot.mDistance *= YMulti;
@@ -470,37 +475,75 @@ typedef struct mVecInt_c
 
 struct PhysicsOverride {
     public:
+    enum OverrideType {SET=0, MULTIPLY=1};
     dAcPy_c* mOwner;
     mVec2_c mCCOffset; //Normal +/- for XY, From Center
     mVec2_c mCCScale; //Mirrored from Center by Vanilla
-    const TileCollisionOverride CollisionOverride;
+    const TileCollisionOverride MiniCollision;
+    const TileCollisionOverride NormalCollision;
+    const TileCollisionOverride SuperCollision;
     
     float mBgConveyerbeltness;
     bool State[5];
+    OverrideType Type;
     void** arr;
 
     void Apply() {
         if(mOwner < (dAcPy_c*)0x80000000) return;
         if(State[1]) {
-            *(mVec2_c*)GetMemberFromOffset(&mOwner->mCc, 0x24) = mCCScale;
-            *(mVec2_c*)GetMemberFromOffset(&mOwner->mCc1, 0x24) = mCCScale;
-            *(mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc1, 0x24) = mCCScale;
-            *(mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc2, 0x24) = mCCScale;
-            *(mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc3, 0x24) = mCCScale;
+            if(Type == SET) {
+                *(mVec2_c*)GetMemberFromOffset(&mOwner->mCc, 0x24) = mCCScale;
+                *(mVec2_c*)GetMemberFromOffset(&mOwner->mCc1, 0x24) = mCCScale;
+                *(mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc1, 0x24) = mCCScale;
+                *(mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc2, 0x24) = mCCScale;
+                *(mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc3, 0x24) = mCCScale;
+            }
+            else if(Type == MULTIPLY) {
+                mVec2_c* ptr = NULL;
+                ptr = (mVec2_c*)GetMemberFromOffset(&mOwner->mCc, 0x24);
+                *ptr = VecMul2(*ptr, mCCScale);
+                ptr = (mVec2_c*)GetMemberFromOffset(&mOwner->mCc1, 0x24);
+                *ptr = VecMul2(*ptr, mCCScale);
+                ptr = (mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc1, 0x24);
+                *ptr = VecMul2(*ptr, mCCScale);
+                ptr = (mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc2, 0x24);
+                *ptr = VecMul2(*ptr, mCCScale);
+                ptr = (mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc3, 0x24);
+                *ptr = VecMul2(*ptr, mCCScale);
+            }
+            
         }
         if(State[2]) {
-            *(mVec2_c*)GetMemberFromOffset(&mOwner->mCc, 0x1C) = mCCOffset;
-            *(mVec2_c*)GetMemberFromOffset(&mOwner->mCc1, 0x1C) = mCCOffset;
-            *(mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc1, 0x1C) = mCCOffset;
-            *(mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc2, 0x1C) = mCCOffset;
-            *(mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc3, 0x1C) = mCCOffset;
+            if(Type == SET) {
+                *(mVec2_c*)GetMemberFromOffset(&mOwner->mCc, 0x1C) = mCCOffset;
+                *(mVec2_c*)GetMemberFromOffset(&mOwner->mCc1, 0x1C) = mCCOffset;
+                *(mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc1, 0x1C) = mCCOffset;
+                *(mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc2, 0x1C) = mCCOffset;
+                *(mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc3, 0x1C) = mCCOffset;
+            }
+            else if(Type == MULTIPLY) {
+                mVec2_c* ptr = NULL;
+                ptr = (mVec2_c*)GetMemberFromOffset(&mOwner->mCc, 0x1C);
+                *ptr = VecMul2(*ptr, mCCOffset);
+                ptr = (mVec2_c*)GetMemberFromOffset(&mOwner->mCc1, 0x1C);
+                *ptr = VecMul2(*ptr, mCCOffset);
+                ptr = (mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc1, 0x1C);
+                *ptr = VecMul2(*ptr, mCCOffset);
+                ptr = (mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc2, 0x1C);
+                *ptr = VecMul2(*ptr, mCCOffset);
+                ptr = (mVec2_c*)GetMemberFromOffset(&mOwner->mAttCc3, 0x1C);
+                *ptr = VecMul2(*ptr, mCCOffset);
+            }
         }
         if(State[4] && (*checkGrounded(mOwner) & 0x0000000F) == 1) SetConveyerSpeed(mOwner, mBgConveyerbeltness);
-        //The Others arent Implemented yet lol
         if(!State[0]) delete this;
     }
 
-    PhysicsOverride(dAcPy_c* owner, mVec2_c CCScale, mVec2_c CCOffset, mVec2_c TileMultiplier, float conveyerness, bool keepAlive, void** array) : CollisionOverride(TileCollisionOverride::CreateMultiplied(TileMultiplier.x, TileMultiplier.y)) {
+    PhysicsOverride(dAcPy_c* owner, mVec2_c CCScale, mVec2_c CCOffset, mVec2_c TileMultiplier, float conveyerness, bool keepAlive, OverrideType SetType, void** array) : 
+    MiniCollision(TileCollisionOverride::CreateMultiplied(TileCollisionOverride::MiniBase(), TileMultiplier.x, TileMultiplier.y)),
+    NormalCollision(TileCollisionOverride::CreateMultiplied(TileCollisionOverride::NormalBase(), TileMultiplier.x, TileMultiplier.y)),
+    SuperCollision(TileCollisionOverride::CreateMultiplied(TileCollisionOverride::BigBase(), TileMultiplier.x, TileMultiplier.y))
+    {
         mOwner = owner;
         mCCScale = CCScale; 
         mCCOffset = CCOffset; 
@@ -511,6 +554,7 @@ struct PhysicsOverride {
         State[2] = CCOffset.x || CCOffset.y;
         State[3] = TileMultiplier.x && TileMultiplier.y; //Deferred into OnBcPickSource
         State[4] = conveyerness;
+        Type = SetType;
         
         int id = FindPointerInArray((void**)Players, 4, owner);
         if(id == 0xFFFF) OSReport("Owner not found, memory leak achieved\n");

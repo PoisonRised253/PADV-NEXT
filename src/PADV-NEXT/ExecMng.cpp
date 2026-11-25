@@ -203,16 +203,23 @@ void ExecMng::OnPhysicsUpdate(dAcPy_c* plr) {
     return;
 }
 
-//80142784
+//Im proud of this. Well, rather the total mechanism.
 void* ExecMng::OnBcPickSource(void* out) {
     register void* ptr;
     register void* offset;
+    register u32 type;
+    asm("mr type, r4");
+    type /= 4;
     asm("mr ptr, r28");
     asm("mr offset, r5");
     const TileCollisionOverride* chosen = NULL;
     for(int i = 0; i < 4; i++) {
         if(PhysicsOverrides[i] && PhysicsOverrides[i]->mOwner == ptr && PhysicsOverrides[i]->State[3])
-            chosen = &PhysicsOverrides[i]->CollisionOverride;
+        {
+            if(type == 0x00000000) chosen = &PhysicsOverrides[i]->NormalCollision;
+            else if(type != 0x3 && type > 0) chosen = &PhysicsOverrides[i]->SuperCollision;
+            else if(type == 0x00000003) chosen = &PhysicsOverrides[i]->MiniCollision;
+        }
     }
     if(chosen) out = GetMemberFromOffset((void*)chosen, (u32)offset * 0x40);
     return out;

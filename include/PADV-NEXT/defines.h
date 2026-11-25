@@ -53,12 +53,12 @@
 #include <game/bases/d_cyuukan.hpp>
 
 #include "PADV-NEXT/predefines.hpp"
+#include "PADV-NEXT/math.hpp"
 #include "PADV-NEXT/Utils.h"
 #include "PADV-NEXT/structs.hpp"
-#include "PADV-NEXT/PoisonMap/PoisonMap.h"
+#include "PADV-NEXT/PoisonMap/PoisonMap.h" 
 #include "PADV-NEXT/OverlayObjects.h"
 #include "PADV-NEXT/ExecMng.h"
-#include "PADV-NEXT/math.hpp"
 #include "PADV-NEXT/Modifiers.h"
 #include "PADV-NEXT/daEnemies_c.h"
 
