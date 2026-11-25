@@ -77,70 +77,97 @@ struct TileCollisionOverride {
     //DO NOT RUN THIS MORE THAN ONCE PER FRAME
     static TileCollisionOverride CreateMultiplied(const TileCollisionOverride* copyFrom, float XMulti, float YMulti) {
         TileCollisionOverride out = TileCollisionOverride(*copyFrom);
+
+        OSReport("LR: %p\n", getLR());
+        int xCorr = Round(fres(XMulti) * 2048.f) / 2;
+        int yCorr = Round(fres(YMulti) * 2048.f);
+
+        OSReport("XCorr: %i, YCorr: %i\n", xCorr, yCorr);
+
         out.mNormal.mFoot.mLineA *= XMulti;
         out.mNormal.mFoot.mLineB *= XMulti;
         out.mNormal.mFoot.mDistance *= YMulti;
+        //out.mNormal.mFoot.mDistance += yCorr;
         out.mNormal.mHead.mLineA *= XMulti;
         out.mNormal.mHead.mLineB *= XMulti;
         out.mNormal.mHead.mDistance *= YMulti;
+        out.mNormal.mHead.mDistance += yCorr;
         out.mNormal.mWall.mLineA *= YMulti;
         out.mNormal.mWall.mLineB *= YMulti;
         out.mNormal.mWall.mDistance *= XMulti;
+        out.mNormal.mWall.mDistance += xCorr;
         out.mNormal.mVine.mLineA *= YMulti;
         out.mNormal.mVine.mLineB *= YMulti;
         out.mNormal.mVine.mDistance *= XMulti;
+        out.mNormal.mVine.mDistance += xCorr;
 
         out.mCrouch.mFoot.mLineA *= XMulti;
         out.mCrouch.mFoot.mLineB *= XMulti;
         out.mCrouch.mFoot.mDistance *= YMulti;
+        //out.mCrouch.mFoot.mDistance += yCorr;
         out.mCrouch.mHead.mLineA *= XMulti;
         out.mCrouch.mHead.mLineB *= XMulti;
         out.mCrouch.mHead.mDistance *= YMulti;
+        out.mCrouch.mHead.mDistance += yCorr;
         out.mCrouch.mWall.mLineA *= YMulti;
         out.mCrouch.mWall.mLineB *= YMulti;
         out.mCrouch.mWall.mDistance *= XMulti;
+        out.mCrouch.mWall.mDistance += xCorr;
         out.mCrouch.mVine.mLineA *= YMulti;
         out.mCrouch.mVine.mLineB *= YMulti;
         out.mCrouch.mVine.mDistance *= XMulti;
+        out.mCrouch.mVine.mDistance += xCorr;
 
         out.mUnk1.mFoot.mLineA *= XMulti;
         out.mUnk1.mFoot.mLineB *= XMulti;
         out.mUnk1.mFoot.mDistance *= YMulti;
+        //out.mUnk1.mFoot.mDistance += yCorr;
         out.mUnk1.mHead.mLineA *= XMulti;
         out.mUnk1.mHead.mLineB *= XMulti;
         out.mUnk1.mHead.mDistance *= YMulti;
+        out.mUnk1.mHead.mDistance += yCorr;
         out.mUnk1.mWall.mLineA *= YMulti;
         out.mUnk1.mWall.mLineB *= YMulti;
         out.mUnk1.mWall.mDistance *= XMulti;
+        out.mUnk1.mWall.mDistance += xCorr;
         out.mUnk1.mVine.mLineA *= YMulti;
         out.mUnk1.mVine.mLineB *= YMulti;
         out.mUnk1.mVine.mDistance *= XMulti;
+        out.mUnk1.mVine.mDistance += xCorr;
 
         out.mUnk2.mFoot.mLineA *= XMulti;
         out.mUnk2.mFoot.mLineB *= XMulti;
         out.mUnk2.mFoot.mDistance *= YMulti;
+        //out.mUnk2.mFoot.mDistance += yCorr;
         out.mUnk2.mHead.mLineA *= XMulti;
         out.mUnk2.mHead.mLineB *= XMulti;
         out.mUnk2.mHead.mDistance *= YMulti;
+        out.mUnk2.mHead.mDistance += yCorr;
         out.mUnk2.mWall.mLineA *= YMulti;
         out.mUnk2.mWall.mLineB *= YMulti;
         out.mUnk2.mWall.mDistance *= XMulti;
+        out.mUnk2.mWall.mDistance += xCorr;
         out.mUnk2.mVine.mLineA *= YMulti;
         out.mUnk2.mVine.mLineB *= YMulti;
         out.mUnk2.mVine.mDistance *= XMulti;
+        out.mUnk2.mVine.mDistance += xCorr;
 
         out.mStar.mFoot.mLineA *= XMulti;
         out.mStar.mFoot.mLineB *= XMulti;
         out.mStar.mFoot.mDistance *= YMulti;
+        //out.mStar.mFoot.mDistance += yCorr;
         out.mStar.mHead.mLineA *= XMulti;
         out.mStar.mHead.mLineB *= XMulti;
         out.mStar.mHead.mDistance *= YMulti;
+        out.mStar.mHead.mDistance += yCorr;
         out.mStar.mWall.mLineA *= YMulti;
         out.mStar.mWall.mLineB *= YMulti;
         out.mStar.mWall.mDistance *= XMulti;
+        out.mStar.mWall.mDistance += xCorr;
         out.mStar.mVine.mLineA *= YMulti;
         out.mStar.mVine.mLineB *= YMulti;
         out.mStar.mVine.mDistance *= XMulti;
+        out.mStar.mVine.mDistance += yCorr;
         return out;
     }
 

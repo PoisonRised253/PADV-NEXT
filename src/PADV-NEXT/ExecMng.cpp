@@ -94,11 +94,6 @@ void ExecMng::Reset(bool full) {
     //OSReport("Reset Type: %i\n", full);
     dSys_c::setFrameRate(1);
     ModifyMovement(0);
-
-    for(int i = 0; i < 4; i++) {
-        if(PhysicsOverrides[i]) delete PhysicsOverrides[i];
-        //if(CollisionOverrides[i]) delete CollisionOverrides[i];
-    }
     
     if(!full) {
         dBaseActor_c* wmSwitchBroken = GetNextOfType(WM_SWITCH, NULL);
@@ -113,8 +108,13 @@ void ExecMng::Reset(bool full) {
         Spawners::daIcicle_c::SetGlobalScale(1);
         daHuckit_c::SetSpawnID(0x11F); //Huckit Rock
         EnteredStage = false;
+
+        for(int i = 0; i < 4; i++) {
+            if(PhysicsOverrides[i]) delete PhysicsOverrides[i];
+        }
     }
 
+    #ifdef PADV_EASYMODE
     dMj2dGame_c* header = dSaveMng_c::m_instance->getSaveGame(dSaveMng_c::m_instance->getLastSelectedFile());
     if(header) {
         header->setStockItem(0, 99);
@@ -130,6 +130,8 @@ void ExecMng::Reset(bool full) {
         daPyMng_c::mRest[2] = LIVES_AMOUNT;
         daPyMng_c::mRest[3] = LIVES_AMOUNT;
     }
+    #endif
+
     #ifdef PADV_DEBUG_EXEC
     OSReport("Passed on phase %i\n", full);
     #endif
@@ -151,7 +153,7 @@ void ExecMng::Execute(ExecPhase phase) {
             OSReport("BeginFrame\n");
         #endif
         if(smitePlayer) {
-            smitePlayer->mPos.y += -2048;
+            smitePlayer->mPos.y += -2048.f;
             smitePlayer = NULL;
         }
         AntiBubble();
@@ -188,7 +190,7 @@ void ExecMng::Execute(ExecPhase phase) {
     OSReport("Frame: %i\n", FrameTimer);
     #ifdef DEBUG_PLAYERCOUNT
     OSReport("Players: %i, %i, %i, %i\n", (bool)Players[0], (bool)Players[1], (bool)Players[2], (bool)Players[3]);
-#endif
+    #endif
 #endif
     return;
 }
@@ -216,9 +218,9 @@ void* ExecMng::OnBcPickSource(void* out) {
     for(int i = 0; i < 4; i++) {
         if(PhysicsOverrides[i] && PhysicsOverrides[i]->mOwner == ptr && PhysicsOverrides[i]->State[3])
         {
-            if(type == 0x00000000) chosen = &PhysicsOverrides[i]->NormalCollision;
-            else if(type != 0x3 && type > 0) chosen = &PhysicsOverrides[i]->SuperCollision;
-            else if(type == 0x00000003) chosen = &PhysicsOverrides[i]->MiniCollision;
+            if(type == 0x00000000) { chosen = &PhysicsOverrides[i]->NormalCollision; break; }
+            else if(type != 0x3 && type > 0) { chosen = &PhysicsOverrides[i]->SuperCollision; break; }
+            else if(type == 0x00000003) { chosen = &PhysicsOverrides[i]->MiniCollision; break; }
         }
     }
     if(chosen) out = GetMemberFromOffset((void*)chosen, (u32)offset * 0x40);

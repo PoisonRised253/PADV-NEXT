@@ -635,12 +635,12 @@ ext void HuckMeSomeBalls() {
 }
 
 ext void ToDefineTheWordConvey() {
-    static const mVec3_c Two = mVec3_c(2,2,2);
+    static const mVec3_c Two = mVec3_c(0.125f,0.125f,0.125f);
     for(int i = 0; i < 4; i++) {
         if(!Players[i]) continue;
 
-        if(!PhysicsOverrides[i]) 
-            new PhysicsOverride(Players[i], mVec2_c(2,2), mVec2_c(1,2), mVec2_c(2,2), 0, true, PhysicsOverride::MULTIPLY, (void**)PhysicsOverrides);
+        if(!PhysicsOverrides[i])
+            new PhysicsOverride(Players[i], mVec2_c(0.125f,0.125f), mVec2_c(0.125f,0.125f), mVec2_c(0.125f,0.125f), 0, true, PhysicsOverride::MULTIPLY, (void**)PhysicsOverrides);
         
         Players[i]->mScale = Two;
     }

@@ -23,7 +23,7 @@ T clampSymmetric(T value, T limit)
 }
 
 template <typename T>
-T Abs(T value) {
+T Abs(register T value) {
     if(value < 0) return -value;
     return value;
 }
@@ -34,6 +34,13 @@ T Absnt(T value)
     if (value > 0) return -value;
     return value;
 }
+
+//floatUtils.s
+inline float fres(float& value);
+inline float fabs(float& value);
+inline float fnabs(float& value);
+inline void* getLR();
+inline u64 getTB();
 
 inline mVec2_c MakeVec2(float x, float y) { return mVec2_c(x, y); }
 inline mVec3_c MakeVec(float x, float y, float z) { return mVec3_c(x, y, z); }
@@ -52,6 +59,9 @@ inline mVec3_c VecDiv(mVec3_c a, mVec3_c b) { return mVec3_c(a.x / b.x, a.y / b.
 
 inline mVec2_c VecDist2(mVec2_c a, mVec2_c b) { return VecSub2(b,a); }
 inline mVec3_c VecDist(mVec3_c a, mVec3_c b) { return VecSub(b,a); }
+
+inline mVec2_c DemoteVec(const mVec3_c& other) {return mVec2_c(other.x, other.y); }
+inline mVec3_c PromoteVec(const mVec2_c& other)  {return mVec3_c(other.x, other.y, 0); }
 
 inline int Round(float x) { return (int)(x >= 0.0f ? x + 0.5f : x - 0.5f); }
 
